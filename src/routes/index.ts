@@ -1,12 +1,12 @@
 import { Router } from "express"
-import authRouter from './auth'
-import ratingRouter from './ratings'
-import userRouter from './users'
-import genreRouter from './genres'
-import commentRouter from './comments'
-import reviewRouter from './reviews'
-import showRouter from './shows'
-import movieRouter from './movies'
+import authRouter from './auth.route'
+import ratingRouter from './ratings.route'
+import userRouter from './users.route'
+import genreRouter from './genres.route'
+import commentRouter from './comments.route'
+import reviewRouter from './reviews.route'
+import showRouter from './shows.route'
+import movieRouter from './movies.route'
 
 const router = Router()
 
