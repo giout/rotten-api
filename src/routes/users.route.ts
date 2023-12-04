@@ -1,6 +1,21 @@
 import { Router } from "express"
+import { getAuthUser } from "../controllers/users.controllers"
+import { authentication } from "../middlewares/auth.middleware"
 
 const router = Router()
+
+router.use(authentication) // protected route
+
+/* get authenticated user 
+res: {
+    username: string,
+    firstName: string,
+    lastName: string,
+    password: string,
+    isCritic: boolean
+}
+*/
+router.get('/me', getAuthUser)
 
 /* get all users
 res: [{

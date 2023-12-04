@@ -1,6 +1,9 @@
 import { Router } from "express"
+import { authentication } from "../middlewares/auth.middleware"
 
 const router = Router()
+
+router.use(authentication) // protected route
 
 router.route('/')
 /* get all genres 

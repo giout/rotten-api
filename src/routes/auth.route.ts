@@ -1,4 +1,5 @@
 import { Router } from "express"
+import { logIn, signUp } from "../controllers/auth.controller"
 
 const router = Router()
 
@@ -11,7 +12,7 @@ res: {
     token: string
 }
 */ 
-router.post('/login')
+router.post('/login', logIn)
 
 /* sign up
 req: {
@@ -30,6 +31,6 @@ res: {
     isCritic: boolean
 }
 */ 
-router.post('/signup')
+router.post('/signup', signUp)
 
 export default router
