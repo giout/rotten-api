@@ -1,7 +1,7 @@
 CREATE SCHEMA IF NOT EXISTS rotten;
 
 CREATE TABLE IF NOT EXISTS rotten.media (
-    film_id SERIAL,
+    media_id SERIAL,
     media_title TEXT NOT NULL,
     overview TEXT NOT NULL,
     adult BOOLEAN NOT NULL,
@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS rotten.media (
     is_tv BOOLEAN NOT NULL,
     poster_url TEXT NOT NULL,
     trailer_url TEXT NOT NULL,
-    PRIMARY KEY(film_id)
+    PRIMARY KEY(media_id)
 );
 
 CREATE TABLE IF NOT EXISTS rotten.genre (
@@ -23,8 +23,8 @@ CREATE TABLE IF NOT EXISTS rotten.media_genre (
     media_id INTEGER,
     genre_id INTEGER,
     PRIMARY KEY (media_id, genre_id),
-    FOREIGN KEY media_id REFERENCES rotten.media (media_id) ON DELETE CASCADE,
-    FOREIGN KEY genre_id REFERENCES rotten.genre (genre_id) ON DELETE CASCADE
+    FOREIGN KEY (media_id) REFERENCES rotten.media (media_id) ON DELETE CASCADE,
+    FOREIGN KEY (genre_id) REFERENCES rotten.genre (genre_id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS rotten.users (
@@ -45,8 +45,8 @@ CREATE TABLE IF NOT EXISTS rotten.reviews (
     media_id INTEGER NOT NULL,
     review_date TIMESTAMP NOT NULL DEFAULT NOW(),
     PRIMARY KEY (review_id),
-    FOREIGN KEY media_id REFERENCES rotten.media (media_id) ON DELETE CASCADE,
-    FOREIGN KEY user_id REFERENCES rotten.users (user_id) ON DELETE CASCADE
+    FOREIGN KEY (media_id) REFERENCES rotten.media (media_id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES rotten.users (user_id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS rotten.comments (
@@ -56,8 +56,8 @@ CREATE TABLE IF NOT EXISTS rotten.comments (
     review_id INTEGER NOT NULL,
     comment_date TIMESTAMP NOT NULL DEFAULT NOW(),
     PRIMARY KEY (comment_id),
-    FOREIGN KEY review_id REFERENCES rotten.reviews (review_id) ON DELETE CASCADE,
-    FOREIGN KEY user_id REFERENCES rotten.users (user_id) ON DELETE CASCADE
+    FOREIGN KEY (review_id) REFERENCES rotten.reviews (review_id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES rotten.users (user_id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS rotten.ratings (
@@ -65,6 +65,6 @@ CREATE TABLE IF NOT EXISTS rotten.ratings (
     media_id INTEGER,
     score NUMERIC NOT NULL,
     PRIMARY KEY (user_id, media_id),
-    FOREIGN KEY media_id REFERENCES rotten.media (media_id) ON DELETE CASCADE,
-    FOREIGN KEY user_id REFERENCES rotten.users (user_id) ON DELETE CASCADE
+    FOREIGN KEY (media_id) REFERENCES rotten.media (media_id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES rotten.users (user_id) ON DELETE CASCADE
 );
