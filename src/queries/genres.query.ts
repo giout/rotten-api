@@ -1,4 +1,4 @@
-const table  = 'rotten.genre'
+const table  = 'rotten.genres'
 
 const queries = {
     select: {

@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS rotten.media (
     PRIMARY KEY(media_id)
 );
 
-CREATE TABLE IF NOT EXISTS rotten.genre (
+CREATE TABLE IF NOT EXISTS rotten.genres (
     genre_id SERIAL,
     genre_title TEXT NOT NULL,
     PRIMARY KEY (genre_id)
