@@ -25,7 +25,10 @@ export const signUp = async (req: Request, res: Response, next: NextFunction) =>
 
         const createdUser = await insertUser({ username, firstName, lastName, password, isCritic })
 
-        res.status(201).json(createdUser)
+        res.status(201).json({
+            code: 201,
+            data: createdUser
+        })
     } catch(e) {
         next(e)
     }
@@ -56,7 +59,12 @@ export const logIn = async (req: Request, res: Response, next: NextFunction) => 
             expiresIn: 60*60*24*30 // 1 month
         })
 
-        res.status(200).json({ token })
+        res.status(200).json({ 
+            code: 200, 
+            data: {
+                token
+            }
+        })
     } catch(e) {
         next(e)
     }

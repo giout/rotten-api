@@ -5,7 +5,10 @@ export const errorHandler = (err: Error, req: Request, res: Response, next: Next
     console.log(err)
     
     if (err instanceof CustomError) {
-        return res.status(err.statusCode).json({ msg: err.message })
+        return res.status(err.statusCode).json({ 
+            code: err.statusCode,
+            msg: err.message
+        })
     }
 
     res.status(500).json({ msg: "Internal server error." })

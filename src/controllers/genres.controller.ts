@@ -4,7 +4,10 @@ import { createGenre, selectAllGenres, selectGenreById } from "../services/genre
 export const getAllGenres = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const genres = await selectAllGenres()
-        res.status(200).json(genres)
+        res.status(200).json({
+            code: 200,
+            data: genres
+        })
     } catch(e) {
         next(e)
     }
@@ -14,7 +17,10 @@ export const postGenre = async (req: Request, res: Response, next: NextFunction)
     try {
         const { title } = req.body
         const genre = await createGenre(title)
-        res.status(201).json(genre)
+        res.status(201).json({
+            code: 201,
+            data: genre
+        })
     } catch(e) {
         next(e)
     }
@@ -24,7 +30,10 @@ export const getGenreById = async (req: Request, res: Response, next: NextFuncti
     try {
         const { id } = req.params
         const genre = await selectGenreById(id)
-        res.status(201).json(genre)
+        res.status(200).json({
+            code: 200,
+            data: genre
+        })
     } catch(e) {
         next(e)
     }
