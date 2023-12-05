@@ -1,5 +1,6 @@
 import { Router } from "express"
 import { authentication } from "../middlewares/auth.middleware"
+import { deleteComment, getAllComments, getCommentById, postComment } from "../controllers/comments.controller"
 
 const router = Router()
 
@@ -16,7 +17,7 @@ res: [{
     date: string
 }, ...]
 */
-.get()
+.get(getAllComments)
 
 /* create comment 
 req: {
@@ -32,7 +33,7 @@ res: {
     date: string
 }
 */
-.post()
+.post(postComment)
 
 router.route('/:id')
 
@@ -45,10 +46,10 @@ res: {
     date: string 
 }
 */
-.get()
+.get(getCommentById)
 
 /* delete comment 
 */
-.delete()
+.delete(deleteComment)
 
 export default router

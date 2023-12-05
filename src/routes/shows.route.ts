@@ -1,5 +1,6 @@
 import { Router } from "express"
 import { authentication } from "../middlewares/auth.middleware"
+import { getAllShows, getShowById } from "../controllers/shows.controller"
 
 const router = Router()
 
@@ -21,7 +22,7 @@ res: [{
     criticScore: number
 }, ...]
 */
-router.get('/')
+router.get('/', getAllShows)
 
 /* get show by id 
 res: {
@@ -39,6 +40,6 @@ res: {
     criticScore: number
 }
 */
-router.get('/:id')
+router.get('/:id', getShowById)
 
 export default router

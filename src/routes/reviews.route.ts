@@ -1,5 +1,6 @@
 import { Router } from "express"
 import { authentication } from "../middlewares/auth.middleware"
+import { deleteReview, getAllReviews, getReviewById, postReview } from "../controllers/reviews.controller"
 
 const router = Router()
 
@@ -15,7 +16,7 @@ res: [{
     date: string
 }, ...]
 */
-.get()
+.get(getAllReviews)
 
 /* create review 
 req: {
@@ -31,7 +32,7 @@ res: {
     date: string
 }
 */
-.post()
+.post(postReview)
 
 router.route('/:id')
 /*  get review by id
@@ -43,10 +44,10 @@ res: {
     date: string
 }
 */
-.get()
+.get(getReviewById)
 
 /* delete review 
 */
-.delete()
+.delete(deleteReview)
 
 export default router
