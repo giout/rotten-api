@@ -1,5 +1,6 @@
 import { Router } from "express"
 import { authentication } from "../middlewares/auth.middleware"
+import { getAllGenres, getGenreById, postGenre } from "../controllers/genres.controller"
 
 const router = Router()
 
@@ -12,7 +13,7 @@ res: [{
     title: string
 }, ...]
 */
-.get()
+.get(getAllGenres)
 
 /* create genre
 req: {
@@ -23,7 +24,7 @@ res: {
     title: string
 }
 */
-.post()
+.post(postGenre)
 
 /* get genre by id 
 res: {
@@ -31,6 +32,6 @@ res: {
     title: string
 }
 */
-router.get('/:id')
+router.get('/:id', getGenreById)
 
 export default router

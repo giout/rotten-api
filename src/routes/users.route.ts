@@ -1,5 +1,5 @@
 import { Router } from "express"
-import { getAuthUser } from "../controllers/users.controllers"
+import { deleteUser, getAllUsers, getAuthUser, getUserById, putUser } from "../controllers/users.controllers"
 import { authentication } from "../middlewares/auth.middleware"
 
 const router = Router()
@@ -29,7 +29,7 @@ res: [{
     isCritic: boolean
 }, ...]
 */
-router.get('/')
+router.get('/', getAllUsers)
 
 router.route('/:id')
 
@@ -45,7 +45,7 @@ res: {
     isCritic: boolean
 }
 */
-.get()
+.get(getUserById)
 
 /* update user
 req: {
@@ -62,10 +62,10 @@ res: {
     password: string
 }
 */
-.put()
+.put(putUser)
 
 /* delete user
 */
-.delete()
+.delete(deleteUser)
 
 export default router

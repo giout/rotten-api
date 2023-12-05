@@ -3,7 +3,13 @@ export interface UserReq {
     firstName: string,
     lastName: string,
     password: string,
-    isCritic: string
+    isCritic: boolean
+}
+
+export interface UserPut {
+    firstName: string,
+    lastName: string,
+    password: string
 }
 
 export interface UserBD {

@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from "express"
 import { CustomError } from "../utils/error.util"
 import { validatePassword } from "../utils/validation.util"
 import { compareCrypted, encrypt } from "../utils/crypt.util"
-import { createUser, findUserByUsername } from "../services/users.service"
+import { insertUser, selectUserByUsername } from "../services/users.service"
 import jwt from "jsonwebtoken"
 import { UserBD } from "../types/users.type"
 
@@ -10,7 +10,7 @@ export const signUp = async (req: Request, res: Response, next: NextFunction) =>
     try {
         let { username, firstName, lastName, password, isCritic } = req.body
 
-        const user: UserBD = await findUserByUsername(username)
+        const user: UserBD = await selectUserByUsername(username)
 
         if (user)
             throw new CustomError('User already exists.', 400)
@@ -23,7 +23,7 @@ export const signUp = async (req: Request, res: Response, next: NextFunction) =>
 
         password = encrypt(password)
 
-        const createdUser = await createUser({ username, firstName, lastName, password, isCritic })
+        const createdUser = await insertUser({ username, firstName, lastName, password, isCritic })
 
         res.status(201).json(createdUser)
     } catch(e) {
@@ -36,7 +36,7 @@ export const logIn = async (req: Request, res: Response, next: NextFunction) => 
         const { username, password } = req.body
         
         // verify if user exists
-        const user: UserBD = await findUserByUsername(username)
+        const user: UserBD = await selectUserByUsername(username)
 
         if (!user)
             throw new CustomError('User does not exist.', 404)
