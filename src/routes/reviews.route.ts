@@ -5,6 +5,18 @@ const router = Router()
 
 router.use(authentication) // protected route
 
+router.route('/')
+/* get all reviews 
+res: [{
+    id: number,
+    userId: number,
+    mediaId: number,
+    content: string,
+    date: string
+}, ...]
+*/
+.get()
+
 /* create review 
 req: {
     userId: number,
@@ -19,10 +31,22 @@ res: {
     date: string
 }
 */
-router.post('/')
+.post()
+
+router.route('/:id')
+/*  get review by id
+res: {
+    id: number,
+    userId: number,
+    mediaId: number,
+    content: string,
+    date: string
+}
+*/
+.get()
 
 /* delete review 
 */
-router.delete('/:id')
+.delete()
 
 export default router
