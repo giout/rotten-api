@@ -29,6 +29,7 @@ res: [{
     isCritic: boolean
 }, ...]
 */
+router.get('/')
 
 router.route('/:id')
 
