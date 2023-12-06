@@ -7,6 +7,7 @@ const router = Router()
 router.use(authentication) // protected route
 
 /* get all shows 
+query -> search, page
 res: [{
     id: number,
     title: string,

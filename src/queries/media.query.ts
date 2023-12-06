@@ -3,7 +3,8 @@ const table = 'rotten.media'
 const queries = {
     select: {
         by: {
-            apiId: `SELECT * FROM ${table} WHERE api_id=$1`
+            apiId: `SELECT * FROM ${table} WHERE api_id=$1`,
+            pk: `SELECT * FROM ${table} WHERE media_id=$1`
         }
     },
 
