@@ -8,8 +8,8 @@ CREATE TABLE IF NOT EXISTS rotten.media (
     original_language TEXT NOT NULL,
     release_date TIMESTAMP NOT NULL,
     is_tv BOOLEAN NOT NULL,
-    poster_url TEXT NOT NULL,
-    trailer_url TEXT NOT NULL,
+    poster_url TEXT,
+    trailer_url TEXT,
     api_id INTEGER NOT NULL,
     UNIQUE (api_id),
     PRIMARY KEY(media_id)
