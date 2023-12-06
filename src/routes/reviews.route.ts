@@ -1,22 +1,10 @@
 import { Router } from "express"
 import { authentication } from "../middlewares/auth.middleware"
-import { deleteReview, getAllReviews, getReviewById, postReview } from "../controllers/reviews.controller"
+import { deleteReview, getReviewById, postReview } from "../controllers/reviews.controller"
 
 const router = Router()
 
 router.use(authentication) // protected route
-
-router.route('/')
-/* get all reviews 
-res: [{
-    id: number,
-    userId: number,
-    mediaId: number,
-    content: string,
-    date: string
-}, ...]
-*/
-.get(getAllReviews)
 
 /* create review 
 req: {
@@ -32,7 +20,7 @@ res: {
     date: string
 }
 */
-.post(postReview)
+router.post('/', postReview)
 
 router.route('/:id')
 /*  get review by id
