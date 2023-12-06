@@ -1,6 +1,6 @@
 import { Router } from "express"
 import { authentication } from "../middlewares/auth.middleware"
-import { getAllShows, getShowById } from "../controllers/shows.controller"
+import { getAllShows, getShowById, getShowReviews } from "../controllers/shows.controller"
 
 const router = Router()
 
@@ -41,5 +41,7 @@ res: {
 }
 */
 router.get('/:id', getShowById)
+
+router.get('/:id/reviews', getShowReviews)
 
 export default router

@@ -15,3 +15,11 @@ export const getShowById = async (req: Request, res: Response, next: NextFunctio
         next(e)
     }
 }
+
+export const getShowReviews = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+
+    } catch(e) {
+        next(e)
+    }
+}

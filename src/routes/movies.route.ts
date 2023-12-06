@@ -1,6 +1,6 @@
 import { Router } from "express"
 import { authentication } from "../middlewares/auth.middleware"
-import { getAllMovies, getMovieById } from "../controllers/movies.controller"
+import { getAllMovies, getMovieById, getMovieReviews } from "../controllers/movies.controller"
 
 const router = Router()
 
@@ -41,5 +41,7 @@ res: {
 }
 */
 router.get('/:id', getMovieById)
+
+router.get('/:id/reviews', getMovieReviews)
 
 export default router

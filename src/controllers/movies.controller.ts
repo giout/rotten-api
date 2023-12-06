@@ -32,3 +32,10 @@ export const getMovieById = async (req: Request, res: Response, next: NextFuncti
     }
 }
 
+export const getMovieReviews = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+    } catch(e) {
+        next(e)
+    }
+}
+

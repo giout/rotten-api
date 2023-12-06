@@ -23,3 +23,11 @@ export const deleteReview = async (req: Request, res: Response, next: NextFuncti
         next(e)
     }
 }
+
+export const getReviewComments = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        
+    } catch(e) {
+        next(e)
+    }
+}

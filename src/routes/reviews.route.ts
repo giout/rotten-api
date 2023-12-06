@@ -1,6 +1,6 @@
 import { Router } from "express"
 import { authentication } from "../middlewares/auth.middleware"
-import { deleteReview, getReviewById, postReview } from "../controllers/reviews.controller"
+import { deleteReview, getReviewById, getReviewComments, postReview } from "../controllers/reviews.controller"
 
 const router = Router()
 
@@ -37,5 +37,7 @@ res: {
 /* delete review 
 */
 .delete(deleteReview)
+
+router.get('/:id/comments', getReviewComments)
 
 export default router
