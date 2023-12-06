@@ -1,6 +1,6 @@
 import queries from "../queries/users.query"
 import pool from "../config/database"
-import { UserPut, UserReq } from "../types/users.type"
+import { UserPut, UserPost } from "../types/users.type"
 
 export const selectUserByPk = async (id: string) => {
     const sentence = queries.select.by.pk
@@ -22,7 +22,7 @@ export const selectUserByUsername = async (username: string) => {
     return
 }
 
-export const insertUser = async (user: UserReq) => {
+export const insertUser = async (user: UserPost) => {
     const sentence = queries.insert
 
     const args = [user.username, user.firstName, user.lastName, user.password, user.isCritic]

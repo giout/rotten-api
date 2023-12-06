@@ -1,5 +1,4 @@
 import { selectUserByPk } from "../services/users.service"
-import { UserBD } from "../types/users.type"
 import { CustomError } from "./error.util"
 
 export const validatePassword = (password: string) => {
@@ -10,7 +9,7 @@ export const validatePassword = (password: string) => {
 }
 
 export const userExists = async (id: string) => {
-    const user: UserBD = await selectUserByPk(id)
+    const user = await selectUserByPk(id)
     
     if (!user)
         throw new CustomError('User does not exist.', 404)
