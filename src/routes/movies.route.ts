@@ -42,6 +42,15 @@ res: {
 */
 router.get('/:id', getMovieById)
 
+/* get reviews by movie
+res: [{
+    id: number,
+    content: string,
+    userId: number,
+    movieId: number,
+    date: string
+}]
+*/
 router.get('/:id/reviews', getMovieReviews)
 
 export default router

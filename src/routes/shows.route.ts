@@ -42,6 +42,15 @@ res: {
 */
 router.get('/:id', getShowById)
 
+/* get reviews by show
+res: [{
+    id: number,
+    content: string,
+    userId: number,
+    showId: number,
+    date: string
+}]
+*/
 router.get('/:id/reviews', getShowReviews)
 
 export default router

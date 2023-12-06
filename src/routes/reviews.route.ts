@@ -38,6 +38,15 @@ res: {
 */
 .delete(deleteReview)
 
+/* get comments by review
+res: [{
+    id: number,
+    content: string,
+    userId: number,
+    reviewId: number,
+    date: string
+}]
+*/
 router.get('/:id/comments', getReviewComments)
 
 export default router
