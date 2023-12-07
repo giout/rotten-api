@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express"
-import { createGenre, selectAllGenres, selectGenreById } from "../services/genres.service"
+import { selectAllGenres, selectGenreById } from "../services/genres.service"
 
 export const getAllGenres = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -7,19 +7,6 @@ export const getAllGenres = async (req: Request, res: Response, next: NextFuncti
         res.status(200).json({
             code: 200,
             data: genres
-        })
-    } catch(e) {
-        next(e)
-    }
-}
-
-export const postGenre = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-        const { title } = req.body
-        const genre = await createGenre(title)
-        res.status(201).json({
-            code: 201,
-            data: genre
         })
     } catch(e) {
         next(e)
