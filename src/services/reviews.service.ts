@@ -23,5 +23,5 @@ export const selectReviewByPk = async (id: string) => {
 
 export const deleteReviewByPk = async (id: string) => {
     const sentence = queries.delete
-    const review = await pool.query(sentence, [id])
+    await pool.query(sentence, [id])
 }
