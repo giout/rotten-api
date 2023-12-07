@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS rotten.media (
     is_tv BOOLEAN NOT NULL,
     poster_url TEXT,
     trailer_url TEXT,
-    api_id INTEGER NOT NULL,
+    media_api_id INTEGER NOT NULL,
     UNIQUE (api_id),
     PRIMARY KEY(media_id)
 );
@@ -18,6 +18,8 @@ CREATE TABLE IF NOT EXISTS rotten.media (
 CREATE TABLE IF NOT EXISTS rotten.genres (
     genre_id SERIAL,
     genre_title TEXT NOT NULL,
+    genre_api_id INTEGER NOT NULL,
+    UNIQUE (genre_api_id),
     PRIMARY KEY (genre_id)
 );
 

@@ -3,6 +3,8 @@ import { findMovies } from "../api/movies.api"
 import { insertMedia, selectMediaByApiId, selectMediaByPk } from "../services/media.service"
 import { selectCriticRatings, selectCriticScore, selectPublicRatings, selectPublicScore } from "../services/ratings.service"
 import { selectReviewsByMedia } from "../services/reviews.service"
+import { createGenre, selectGenreByApiId } from "../services/genres.service"
+import { findMovieGenres } from "../api/genres.api"
 
 // each page contains 20 entries
 export const getAllMovies = async (req: Request, res: Response, next: NextFunction) => {
@@ -14,6 +16,7 @@ export const getAllMovies = async (req: Request, res: Response, next: NextFuncti
         const request = await findMovies(<string> search, <string> page)
         const apiMovies = request.results
         const response = []
+        const apiGenres = await findMovieGenres()
 
         // each page brings 20 entries
         // in current page, iterate over every entry
@@ -33,9 +36,21 @@ export const getAllMovies = async (req: Request, res: Response, next: NextFuncti
                     trailerUrl: apiMovie.backdrop_path,
                     apiId: apiMovie.id
                 })
-            }
 
-            // verify if genre exists, if it aint, insert it
+ 
+                for (const genreId of apiMovie.genre_ids) {
+                    // verify if genre exists, if it aint, insert it
+                    const genre = await selectGenreByApiId(genreId)
+
+                    if (!genre)
+                        await createGenre({ 
+                            title: apiGenres.get(genreId), 
+                            apiId: genreId 
+                        })
+                } 
+                
+                // add genre to movie
+            }
 
             // calculate:
             const publicRatings = await selectPublicRatings(movie.media_id) 
@@ -43,6 +58,7 @@ export const getAllMovies = async (req: Request, res: Response, next: NextFuncti
             const publicScore = await selectPublicScore(movie.media_id)
             const criticScore = await selectCriticScore(movie.media_id)
 
+            // add to response movie genre
             response.push({
                 id: movie.media_id,
                 title: movie.media_title,
@@ -60,6 +76,7 @@ export const getAllMovies = async (req: Request, res: Response, next: NextFuncti
             })
         }
         
+
         res.status(200).json({
             code: 200,
             data: response
