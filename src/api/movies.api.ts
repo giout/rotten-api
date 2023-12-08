@@ -17,3 +17,24 @@ export const findMovies = async (query: string, page: string) => {
 
     return request
 }
+
+export const getMovieYTKey = async (id: string) => {
+    const url = api + `/movie/${id}/videos`
+    const request = await getRequest(url, headers, {
+        api_key: key
+    })
+
+    if (!request.results[0]) return null
+
+    return request.results[0].key
+}
+
+export const getMovieDetails = async (id: string) => {
+    const url = api + `/movie/${id}`
+
+    const request = await getRequest(url, headers, {
+        api_key: key
+    })
+
+    return request
+}

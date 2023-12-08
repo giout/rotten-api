@@ -1,10 +1,10 @@
 import { Request, Response, NextFunction } from "express"
-import { findMovies } from "../api/movies.api"
+import { findMovies, getMovieDetails, getMovieYTKey } from "../api/movies.api"
 import { insertMedia, selectMediaByApiId, selectMediaByPk } from "../services/media.service"
 import { selectCriticRatings, selectCriticScore, selectPublicRatings, selectPublicScore } from "../services/ratings.service"
 import { selectReviewsByMedia } from "../services/reviews.service"
-import { createGenre, selectGenreByApiId } from "../services/genres.service"
-import { findMovieGenres } from "../api/genres.api"
+import { insertGenre, selectGenreByApiId } from "../services/genres.service"
+import { image, video } from "../api/url.api"
 
 // each page contains 20 entries
 export const getAllMovies = async (req: Request, res: Response, next: NextFunction) => {
@@ -16,7 +16,6 @@ export const getAllMovies = async (req: Request, res: Response, next: NextFuncti
         const request = await findMovies(<string> search, <string> page)
         const apiMovies = request.results
         const response = []
-        const apiGenres = await findMovieGenres()
 
         // each page brings 20 entries
         // in current page, iterate over every entry
@@ -24,6 +23,8 @@ export const getAllMovies = async (req: Request, res: Response, next: NextFuncti
             // verify if movie exists in database
             let movie = await selectMediaByApiId(apiMovie.id)
             if (!movie) {
+                const trailer = await getMovieYTKey(apiMovie.id)
+
                 // if it aint, save it
                 movie = await insertMedia({
                     isTv: false,
@@ -32,23 +33,23 @@ export const getAllMovies = async (req: Request, res: Response, next: NextFuncti
                     adult: apiMovie.adult,
                     language: apiMovie.original_language,
                     date: apiMovie.release_date || null, 
-                    posterUrl: apiMovie.poster_path,
-                    trailerUrl: apiMovie.backdrop_path,
+                    posterUrl: image + apiMovie.poster_path,
+                    trailerUrl: video + trailer,
                     apiId: apiMovie.id
                 })
-
- 
-                for (const genreId of apiMovie.genre_ids) {
-                    // verify if genre exists, if it aint, insert it
-                    const genre = await selectGenreByApiId(genreId)
-
-                    if (!genre)
-                        await createGenre({ 
-                            title: apiGenres.get(genreId), 
-                            apiId: genreId 
-                        })
-                } 
                 
+                const details = await getMovieDetails(apiMovie.id)
+                for (const apiGenre of details.genres) {
+                    let genre = await selectGenreByApiId(apiGenre.id)
+                    if (genre)
+                        continue
+                    // add genre if it doesnt exist
+                    await insertGenre({
+                        apiId: apiGenre.id,
+                        title: apiGenre.name
+                    })
+                }
+
                 // add genre to movie
             }
 
