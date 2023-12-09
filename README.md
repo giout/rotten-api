@@ -23,4 +23,8 @@
 <td>API_KEY</td>
 <td>Api key to authenticate to external api (TMDB)</td>
 </tr>
+<tr>
+<td>PORT</td>
+<td>Server listening port</td>
+</tr>
 </table>
