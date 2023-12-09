@@ -6,13 +6,33 @@ const key = <string> process.env.API_KEY
 const headers = { 'Content-Type': 'application/json' }
 
 
-// each page contains 20 entries
 export const findShows = async (query: string, page: string) => {
     const url = api + '/search/tv'
     const request = await getRequest(url, headers, {
         api_key: key, 
         query,
         page
+    })
+
+    return request
+}
+
+export const getShowYTKey = async (id: string) => {
+    const url = api + `/tv/${id}/videos`
+    const request = await getRequest(url, headers, {
+        api_key: key
+    })
+
+    if (!request.results[0]) return null
+
+    return request.results[0].key
+}
+
+export const getShowDetails = async (id: string) => {
+    const url = api + `/tv/${id}`
+
+    const request = await getRequest(url, headers, {
+        api_key: key
     })
 
     return request

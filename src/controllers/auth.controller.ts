@@ -44,7 +44,7 @@ export const logIn = async (req: Request, res: Response, next: NextFunction) => 
             throw new CustomError('User does not exist.', 404)
         
         // verify if password matches
-        const equals = compareCrypted(password, user.pass)
+        const equals = compareCrypted(password, user.password)
 
         if (!equals) 
             throw new CustomError('Password is invalid.', 401)
@@ -52,7 +52,7 @@ export const logIn = async (req: Request, res: Response, next: NextFunction) => 
         // create and send authentication token    
         const signature = <string> process.env.TOKEN_SIGNATURE
 
-        const payload = { id: user.user_id} // data payload
+        const payload = { id: user.id} // data payload
 
         const token = jwt.sign(payload, signature, { 
             expiresIn: 60*60*24*30 // 1 month

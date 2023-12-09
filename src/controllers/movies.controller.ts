@@ -50,28 +50,19 @@ export const getAllMovies = async (req: Request, res: Response, next: NextFuncti
 
                     // add genre to movie
                     await insertMediaGenre({ 
-                        mediaId: movie.media_id, 
-                        genreId: genre.genre_id 
+                        mediaId: movie.id, 
+                        genreId: genre.id
                     })
                 }
             }
-
-            // add to response movie genre
+            
             response.push({
-                id: movie.media_id,
-                title: movie.media_title,
-                overview: movie.overview,
-                adult: movie.adult,
-                language: movie.original_language,
-                date: movie.release_date,
-                posterUrl: movie.poster_url,
-                trailerUrl: movie.trailer_url,
-                apiId: movie.api_id,
-                publicRatings: await selectPublicRatings(movie.media_id) ,
-                criticRatings: await selectCriticRatings(movie.media_id),
-                publicScore: await selectPublicScore(movie.media_id),
-                criticScore: await selectCriticScore(movie.media_id),
-                genres: await selectMediaGenres(movie.media_id)
+                ...movie,
+                publicRatings: await selectPublicRatings(movie.id) ,
+                criticRatings: await selectCriticRatings(movie.id),
+                publicScore: await selectPublicScore(movie.id),
+                criticScore: await selectCriticScore(movie.id),
+                genres: await selectMediaGenres(movie.id)
             })
         }
         
@@ -91,20 +82,12 @@ export const getMovieById = async (req: Request, res: Response, next: NextFuncti
         const movie = await selectMediaByPk(id)
         
         const response = {
-            id: movie.media_id,
-            title: movie.media_title,
-            overview: movie.overview,
-            adult: movie.adult,
-            language: movie.original_language,
-            date: movie.release_date,
-            posterUrl: movie.poster_url,
-            trailerUrl: movie.trailer_url,
-            apiId: movie.api_id,
-            publicRatings: await selectPublicRatings(movie.media_id),
-            criticRatings: await selectCriticRatings(movie.media_id),
-            publicScore: await selectPublicScore(movie.media_id),
-            criticScore: await selectCriticScore(movie.media_id),
-            genres: await selectMediaGenres(movie.media_id)
+            ...movie,
+            publicRatings: await selectPublicRatings(movie?.id),
+            criticRatings: await selectCriticRatings(movie?.id),
+            publicScore: await selectPublicScore(movie?.id),
+            criticScore: await selectCriticScore(movie?.id),
+            genres: await selectMediaGenres(movie?.id)
         }
         
         res.status(200).json({

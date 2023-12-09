@@ -1,10 +1,10 @@
 import { Request, Response, NextFunction } from "express"
-import { createComment, deleteCommentByPk, selectCommentByPk } from "../services/comments.service"
+import { insertComment, deleteCommentByPk, selectCommentByPk } from "../services/comments.service"
 
 export const postComment = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { userId, reviewId, content } = req.body
-        const comment = await createComment(req.body)
+        const comment = await insertComment(req.body)
         res.status(201).json({
             code: 201,
             data: comment

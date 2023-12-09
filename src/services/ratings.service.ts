@@ -5,17 +5,25 @@ export const insertRating = async (entry: any) => {
     const { userId, mediaId, score } = entry
     const sentence = queries.insert
     const rating = await pool.query(sentence, [userId, mediaId, score])
-    return rating.rows[0]
+    return {
+        userId: rating.rows[0].user_id,
+        mediaId: rating.rows[0].media_id, 
+        score: rating.rows[0].score,
+    }
 }
 
 export const selectRatingByPk = async (entry: any) => {
     const sentence = queries.select.by.pk
     const rating = await pool.query(sentence, [entry.userId, entry.mediaId])
 
-    if (rating.rows[0])
-        return rating.rows[0]
+    if (!rating.rows[0])
+        return 
 
-    return
+    return {
+        userId: rating.rows[0].user_id,
+        mediaId: rating.rows[0].media_id, 
+        score: rating.rows[0].score,
+    }
 }
 
 export const deleteRating = async (entry: any) => {

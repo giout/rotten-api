@@ -2,7 +2,7 @@ import pool from "../config/database"
 import queries from "../queries/comments.query"
 import { Comment } from "../types/comments.type"
 
-export const selectCommentsByReviewId = async (reviewId: string): Promise<Comment[]> => {
+export const selectCommentsByReviewId = async (reviewId: string) => {
     const sentence = queries.select.by.reviewId
     const comments = await pool.query(sentence, [reviewId])
     const response: Comment[] = []
@@ -18,7 +18,7 @@ export const selectCommentsByReviewId = async (reviewId: string): Promise<Commen
     return response
 }
 
-export const createComment = async (entry: any) => {
+export const insertComment = async (entry: any) => {
     const { userId, reviewId, content } = entry
     const sentence = queries.insert
     const comment = await pool.query(sentence, [userId, reviewId, content])
