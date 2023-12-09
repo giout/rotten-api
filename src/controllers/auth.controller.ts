@@ -7,7 +7,7 @@ import jwt from "jsonwebtoken"
 
 export const signUp = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        let { username, firstName, lastName, password, isCritic } = req.body
+        const { username, firstName, lastName, password, isCritic } = req.body
 
         if (!(username && firstName && lastName && password && isCritic != undefined && isCritic != null))
             dataMissing()
@@ -19,7 +19,7 @@ export const signUp = async (req: Request, res: Response, next: NextFunction) =>
 
         validatePassword(password)
 
-        password = encrypt(password)
+        req.body.password = encrypt(password)
 
         const createdUser = await insertUser(req.body)
 
