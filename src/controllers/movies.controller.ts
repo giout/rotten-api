@@ -6,6 +6,7 @@ import { selectReviewsByMedia } from "../services/reviews.service"
 import { insertGenre, selectGenreByApiId } from "../services/genres.service"
 import { image, video } from "../api/url.api"
 import { insertMediaGenre, selectMediaGenres } from "../services/mediaGenre.service"
+import { mediaExists } from "../utils/validation.util"
 
 // each page contains 20 entries
 export const getAllMovies = async (req: Request, res: Response, next: NextFunction) => {
@@ -79,7 +80,7 @@ export const getMovieById = async (req: Request, res: Response, next: NextFuncti
     try {
         const { id } = req.params
         // select movie in db
-        const movie = await selectMediaByPk(id)
+        const movie = await mediaExists(id)
         
         const response = {
             ...movie,
@@ -103,6 +104,7 @@ export const getMovieById = async (req: Request, res: Response, next: NextFuncti
 export const getMovieReviews = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { id } = req.params
+        await mediaExists(id)
         const reviews = await selectReviewsByMedia(id)
         
         res.status(200).json({

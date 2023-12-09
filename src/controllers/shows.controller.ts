@@ -6,6 +6,7 @@ import { selectCriticRatings, selectCriticScore, selectPublicRatings, selectPubl
 import { image, video } from "../api/url.api"
 import { insertGenre, selectGenreByApiId } from "../services/genres.service"
 import { insertMediaGenre, selectMediaGenres } from "../services/mediaGenre.service"
+import { mediaExists } from "../utils/validation.util"
 
 export const getAllShows = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -79,7 +80,7 @@ export const getShowById = async (req: Request, res: Response, next: NextFunctio
     try {
         const { id } = req.params
         // select show in db
-        const show = await selectMediaByPk(id)
+        const show = await mediaExists(id)
 
         const response = {
             ...show,
@@ -102,6 +103,7 @@ export const getShowById = async (req: Request, res: Response, next: NextFunctio
 export const getShowReviews = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { id } = req.params
+        await mediaExists(id)
         const reviews = await selectReviewsByMedia(id)
         
         res.status(200).json({

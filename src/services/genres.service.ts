@@ -24,7 +24,7 @@ export const insertGenre = async (entry: any) => {
     }
 }
 
-export const selectGenreById = async (id: string) => {
+export const selectGenreByPk = async (id: string) => {
     const sentence = queries.select.by.pk
     const genre = await pool.query(sentence, [id])
     if (!genre.rows[0])

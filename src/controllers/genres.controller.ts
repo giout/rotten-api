@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from "express"
-import { selectAllGenres, selectGenreById } from "../services/genres.service"
+import { selectAllGenres, selectGenreByPk } from "../services/genres.service"
+import { genreExists } from "../utils/validation.util"
 
 export const getAllGenres = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -16,7 +17,7 @@ export const getAllGenres = async (req: Request, res: Response, next: NextFuncti
 export const getGenreById = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { id } = req.params
-        const genre = await selectGenreById(id)
+        const genre = await genreExists(id)
         res.status(200).json({
             code: 200,
             data: genre

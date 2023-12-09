@@ -71,6 +71,7 @@ export const putUser = async (req: Request, res: Response, next: NextFunction) =
 export const deleteUser = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { id } = req.params
+        await userExists(id)
         await deleteUserByPk(id)
         res.status(200).json({
             code: 200

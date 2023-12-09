@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express"
 import { createReview, deleteReviewByPk, selectReviewByPk } from "../services/reviews.service"
 import { selectCommentsByReviewId } from "../services/comments.service"
-import { dataMissing, verifyAuth } from "../utils/validation.util"
+import { dataMissing, reviewExists, verifyAuth } from "../utils/validation.util"
 
 export const postReview = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -25,7 +25,7 @@ export const postReview = async (req: Request, res: Response, next: NextFunction
 export const getReviewById = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { id } = req.params
-        const review = await selectReviewByPk(id)
+        const review = await reviewExists(id)
         res.status(200).json({
             code: 200,
             data: review
@@ -39,8 +39,8 @@ export const deleteReview = async (req: Request, res: Response, next: NextFuncti
     try {
         const { id } = req.params
 
-        const review = await selectReviewByPk(id)
-        verifyAuth(req, review?.id)
+        const review = await reviewExists(id)
+        verifyAuth(req, review.id)
  
         await deleteReviewByPk(id)
         res.status(200).json({
@@ -54,6 +54,8 @@ export const deleteReview = async (req: Request, res: Response, next: NextFuncti
 export const getReviewComments = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { id } = req.params
+        await reviewExists(id)
+
         const comments = await selectCommentsByReviewId(id)
         res.status(200).json({
             code: 200,
