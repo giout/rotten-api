@@ -1,15 +1,14 @@
 import pool from "../config/database"
 import queries from "../queries/ratings.query"
-import { RatingPk, RatingPost } from "../types/ratings.type"
 
-export const insertRating = async (entry: RatingPost) => {
+export const insertRating = async (entry: any) => {
     const { userId, mediaId, score } = entry
     const sentence = queries.insert
     const rating = await pool.query(sentence, [userId, mediaId, score])
     return rating.rows[0]
 }
 
-export const selectRatingByPk = async (entry: RatingPk) => {
+export const selectRatingByPk = async (entry: any) => {
     const sentence = queries.select.by.pk
     const rating = await pool.query(sentence, [entry.userId, entry.mediaId])
 
@@ -19,7 +18,7 @@ export const selectRatingByPk = async (entry: RatingPk) => {
     return
 }
 
-export const deleteRating = async (entry: RatingPk) => {
+export const deleteRating = async (entry: any) => {
     const sentence = queries.delete
     await pool.query(sentence, [entry.userId, entry.mediaId])
 }

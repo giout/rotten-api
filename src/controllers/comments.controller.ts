@@ -4,7 +4,7 @@ import { createComment, deleteCommentByPk, selectCommentByPk } from "../services
 export const postComment = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { userId, reviewId, content } = req.body
-        const comment = await createComment({ userId, reviewId, content })
+        const comment = await createComment(req.body)
         res.status(201).json({
             code: 201,
             data: comment

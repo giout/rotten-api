@@ -1,6 +1,5 @@
 import queries from "../queries/genres.query"
 import pool from "../config/database"
-import { GenrePost } from "../types/genres.type"
 
 export const selectAllGenres = async () => {
     const sentence = queries.select.any
@@ -8,7 +7,7 @@ export const selectAllGenres = async () => {
     return genres.rows
 }
 
-export const insertGenre = async (entry: GenrePost) => {
+export const insertGenre = async (entry: any) => {
     const sentence = queries.insert
     const genre = await pool.query(sentence, [entry.title, entry.apiId])
     return genre.rows[0]

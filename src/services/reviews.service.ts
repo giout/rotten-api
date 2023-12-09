@@ -1,6 +1,5 @@
 import pool from "../config/database"
 import queries from "../queries/reviews.query"
-import { ReviewPost } from "../types/reviews.type"
 
 export const selectReviewsByMedia = async (movieId: string) => {
     const sentence = queries.select.by.mediaId
@@ -8,7 +7,7 @@ export const selectReviewsByMedia = async (movieId: string) => {
     return reviews.rows
 }
 
-export const createReview = async (entry: ReviewPost) => {
+export const createReview = async (entry: any) => {
     const { userId, mediaId, content } = entry
     const sentence = queries.insert
     const review = await pool.query(sentence, [userId, mediaId, content])

@@ -1,6 +1,5 @@
 import pool from "../config/database"
 import queries from "../queries/media.query"
-import { MediaPost } from "../types/media.type"
 
 export const selectMediaByApiId = async (id: string) => {
     const sentence = queries.select.by.apiId
@@ -12,7 +11,7 @@ export const selectMediaByApiId = async (id: string) => {
     return
 }
 
-export const insertMedia = async (entry: MediaPost) => {
+export const insertMedia = async (entry: any) => {
     const sentence = queries.insert
 
     const media = await pool.query(sentence, [

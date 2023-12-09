@@ -5,7 +5,7 @@ import { selectCommentsByReviewId } from "../services/comments.service"
 export const postReview = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { userId, mediaId, content } = req.body
-        const review = await createReview({ userId, mediaId, content })
+        const review = await createReview(req.body)
         res.status(201).json({
             code: 201, 
             data: review

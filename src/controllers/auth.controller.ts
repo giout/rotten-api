@@ -22,7 +22,7 @@ export const signUp = async (req: Request, res: Response, next: NextFunction) =>
 
         password = encrypt(password)
 
-        const createdUser = await insertUser({ username, firstName, lastName, password, isCritic })
+        const createdUser = await insertUser(req.body)
 
         res.status(201).json({
             code: 201,
