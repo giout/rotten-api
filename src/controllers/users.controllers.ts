@@ -1,7 +1,8 @@
 import { Request, Response, NextFunction } from "express"
 import { AuthRequest } from "../types/auth.type"
-import { userExists } from "../utils/validation.util"
-import { deleteUserBD, selectAllUsers, updateUser } from "../services/users.service"
+import { dataMissing, userExists, validatePassword } from "../utils/validation.util"
+import { deleteUserByPk, selectAllUsers, updateUser } from "../services/users.service"
+import { encrypt } from "../utils/crypt.util"
 
 export const getAuthUser = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -50,6 +51,13 @@ export const putUser = async (req: Request, res: Response, next: NextFunction) =
     try {
         const { id } = req.params
         const { firstName, lastName, password } = req.body
+        
+        if (!(firstName || lastName || password))
+            dataMissing()
+        
+        validatePassword(password)
+        req.body.password = encrypt(password)
+
         const user = await updateUser(id, req.body)
         res.status(200).json({
             code: 200,
@@ -63,7 +71,7 @@ export const putUser = async (req: Request, res: Response, next: NextFunction) =
 export const deleteUser = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { id } = req.params
-        await deleteUserBD(id)
+        await deleteUserByPk(id)
         res.status(200).json({
             code: 200
         })

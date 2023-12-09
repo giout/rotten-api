@@ -1,10 +1,13 @@
 import { Request, Response, NextFunction } from "express"
 import { deleteRating, insertRating, selectRatingByPk } from "../services/ratings.service"
-import { verifyAuth } from "../utils/validation.util"
+import { dataMissing, verifyAuth } from "../utils/validation.util"
 
 export const postRating = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { userId, mediaId, score } = req.body
+
+        if (!(userId && mediaId && score))
+            dataMissing()
 
         verifyAuth(req, userId)
 

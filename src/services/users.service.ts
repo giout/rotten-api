@@ -80,10 +80,10 @@ export  const updateUser = async (id: string, entry: any) => {
     if (entry.password)
         await pool.query(password, [entry.password, id])
 
-    return selectUserByPk(id)
+    return await selectUserByPk(id)
 }
 
-export const deleteUserBD = async (id: string) => {
+export const deleteUserByPk = async (id: string) => {
     const sentence = queries.delete
     await pool.query(sentence, [id])
 }

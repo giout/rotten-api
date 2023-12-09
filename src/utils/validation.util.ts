@@ -26,3 +26,7 @@ export const verifyAuth = (req: Request, id: string) => {
     if (user.id != id) 
         throw new CustomError('It is not allowed to create, update or delete data of a user that is not authenticated.', 401)
 }
+
+export const dataMissing = () => {
+    throw new CustomError('Requested data is missing.', 400)
+}

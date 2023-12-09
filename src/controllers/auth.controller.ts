@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express"
 import { CustomError } from "../utils/error.util"
-import { validatePassword } from "../utils/validation.util"
+import { dataMissing, validatePassword } from "../utils/validation.util"
 import { compareCrypted, encrypt } from "../utils/crypt.util"
 import { insertUser, selectUserByUsername } from "../services/users.service"
 import jwt from "jsonwebtoken"
@@ -9,14 +9,13 @@ export const signUp = async (req: Request, res: Response, next: NextFunction) =>
     try {
         let { username, firstName, lastName, password, isCritic } = req.body
 
+        if (!(username && firstName && lastName && password && isCritic != undefined && isCritic != null))
+            dataMissing()
+
         const user = await selectUserByUsername(username)
 
         if (user)
             throw new CustomError('User already exists.', 400)
-
-        // validate empty fields
-        if (!(username && firstName && lastName && password && isCritic != undefined && isCritic != null))
-            throw new CustomError('Data is missing.', 400)
 
         validatePassword(password)
 
@@ -36,6 +35,9 @@ export const signUp = async (req: Request, res: Response, next: NextFunction) =>
 export const logIn = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { username, password } = req.body
+        
+        if (!(username && password))
+            dataMissing()
         
         // verify if user exists
         const user = await selectUserByUsername(username)

@@ -1,10 +1,13 @@
 import { Request, Response, NextFunction } from "express"
 import { insertComment, deleteCommentByPk, selectCommentByPk } from "../services/comments.service"
-import { verifyAuth } from "../utils/validation.util"
+import { dataMissing, verifyAuth } from "../utils/validation.util"
 
 export const postComment = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { userId, reviewId, content } = req.body
+
+        if (!(userId && reviewId && content))
+            dataMissing()
 
         verifyAuth(req, userId)
         
