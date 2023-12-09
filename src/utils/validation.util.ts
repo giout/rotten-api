@@ -1,5 +1,7 @@
+import { Request } from "express"
 import { selectUserByPk } from "../services/users.service"
 import { CustomError } from "./error.util"
+import { AuthRequest } from "../types/auth.type"
 
 export const validatePassword = (password: string) => {
     const regex = /^(?=.*[a-zA-Z])(?=.*[0-9]).{8,}$/
@@ -15,4 +17,11 @@ export const userExists = async (id: string) => {
         throw new CustomError('User does not exist.', 404)
 
     return user
+}
+
+export const userIsAuth = async (req: Request, id: string) => {
+    const { user } = (req as AuthRequest)
+
+    if (user.id != id) 
+        throw new CustomError('It is not allowed to create, update or delete data of a user that is not authenticated.', 401)
 }
