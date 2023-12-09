@@ -19,6 +19,7 @@ export const selectGenreById = async (id: string) => {
 
     if (genre.rows[0])
         return genre.rows[0]
+    
     return
 }
 
