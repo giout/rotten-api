@@ -19,7 +19,8 @@ export const userExists = async (id: string) => {
     return user
 }
 
-export const userIsAuth = async (req: Request, id: string) => {
+// verify if user that tries to manipulate data is the authenticated user
+export const verifyAuth = (req: Request, id: string) => {
     const { user } = (req as AuthRequest)
 
     if (user.id != id) 

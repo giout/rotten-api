@@ -1,10 +1,14 @@
 import { Request, Response, NextFunction } from "express"
 import { createReview, deleteReviewByPk, selectReviewByPk } from "../services/reviews.service"
 import { selectCommentsByReviewId } from "../services/comments.service"
+import { verifyAuth } from "../utils/validation.util"
 
 export const postReview = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { userId, mediaId, content } = req.body
+
+        verifyAuth(req, userId)
+
         const review = await createReview(req.body)
         res.status(201).json({
             code: 201, 
@@ -31,6 +35,10 @@ export const getReviewById = async (req: Request, res: Response, next: NextFunct
 export const deleteReview = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { id } = req.params
+
+        const review = await selectReviewByPk(id)
+        verifyAuth(req, review?.id)
+ 
         await deleteReviewByPk(id)
         res.status(200).json({
             code: 200
