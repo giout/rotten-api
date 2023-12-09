@@ -40,7 +40,7 @@ export const deleteReview = async (req: Request, res: Response, next: NextFuncti
         const { id } = req.params
 
         const review = await reviewExists(id)
-        verifyAuth(req, review.id)
+        verifyAuth(req, review.userId)
  
         await deleteReviewByPk(id)
         res.status(200).json({

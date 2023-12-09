@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express"
 import { AuthRequest } from "../types/auth.type"
-import { dataMissing, userExists, validatePassword } from "../utils/validation.util"
+import { dataMissing, userExists, validatePassword, verifyAuth } from "../utils/validation.util"
 import { deleteUserByPk, selectAllUsers, updateUser } from "../services/users.service"
 import { encrypt } from "../utils/crypt.util"
 
@@ -55,6 +55,7 @@ export const putUser = async (req: Request, res: Response, next: NextFunction) =
         if (!(firstName || lastName || password))
             dataMissing()
         
+        verifyAuth(req, id)
         validatePassword(password)
         req.body.password = encrypt(password)
 
@@ -72,6 +73,7 @@ export const deleteUser = async (req: Request, res: Response, next: NextFunction
     try {
         const { id } = req.params
         await userExists(id)
+        verifyAuth(req, id)
         await deleteUserByPk(id)
         res.status(200).json({
             code: 200
