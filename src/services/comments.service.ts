@@ -1,6 +1,5 @@
 import pool from "../config/database"
 import queries from "../queries/comments.query"
-import { CommentPost } from "../types/comments.type"
 
 export const selectCommentsByReviewId = async (reviewId: string) => {
     const sentence = queries.select.by.reviewId
@@ -8,7 +7,7 @@ export const selectCommentsByReviewId = async (reviewId: string) => {
     return comments.rows
 }
 
-export const createComment = async (entry: CommentPost) => {
+export const createComment = async (entry: any) => {
     const { userId, reviewId, content } = entry
     const sentence = queries.insert
     const review = await pool.query(sentence, [userId, reviewId, content])

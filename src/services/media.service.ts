@@ -26,7 +26,7 @@ export const insertMedia = async (entry: any) => {
         entry.apiId
     ])
 
-    return media
+    return media.rows[0]
 }
 
 export const selectMediaByPk = async (id: string) => {

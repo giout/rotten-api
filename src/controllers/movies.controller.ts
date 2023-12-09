@@ -5,6 +5,7 @@ import { selectCriticRatings, selectCriticScore, selectPublicRatings, selectPubl
 import { selectReviewsByMedia } from "../services/reviews.service"
 import { insertGenre, selectGenreByApiId } from "../services/genres.service"
 import { image, video } from "../api/url.api"
+import { insertMediaGenre, selectMediaGenres } from "../services/mediaGenre.service"
 
 // each page contains 20 entries
 export const getAllMovies = async (req: Request, res: Response, next: NextFunction) => {
@@ -41,23 +42,19 @@ export const getAllMovies = async (req: Request, res: Response, next: NextFuncti
                 const details = await getMovieDetails(apiMovie.id)
                 for (const apiGenre of details.genres) {
                     let genre = await selectGenreByApiId(apiGenre.id)
-                    if (genre)
-                        continue
-                    // add genre if it doesnt exist
-                    await insertGenre({
-                        apiId: apiGenre.id,
-                        title: apiGenre.name
+                    if (!genre)
+                        genre = await insertGenre({
+                            apiId: apiGenre.id,
+                            title: apiGenre.name
+                        })
+
+                    // add genre to movie
+                    await insertMediaGenre({ 
+                        mediaId: movie.media_id, 
+                        genreId: genre.genre_id 
                     })
                 }
-
-                // add genre to movie
             }
-
-            // calculate:
-            const publicRatings = await selectPublicRatings(movie.media_id) 
-            const criticRatings = await selectCriticRatings(movie.media_id)
-            const publicScore = await selectPublicScore(movie.media_id)
-            const criticScore = await selectCriticScore(movie.media_id)
 
             // add to response movie genre
             response.push({
@@ -70,14 +67,14 @@ export const getAllMovies = async (req: Request, res: Response, next: NextFuncti
                 posterUrl: movie.poster_url,
                 trailerUrl: movie.trailer_url,
                 apiId: movie.api_id,
-                publicRatings,
-                criticRatings,
-                publicScore,
-                criticScore,
+                publicRatings: await selectPublicRatings(movie.media_id) ,
+                criticRatings: await selectCriticRatings(movie.media_id),
+                publicScore: await selectPublicScore(movie.media_id),
+                criticScore: await selectCriticScore(movie.media_id),
+                genres: await selectMediaGenres(movie.media_id)
             })
         }
         
-
         res.status(200).json({
             code: 200,
             data: response
@@ -92,11 +89,6 @@ export const getMovieById = async (req: Request, res: Response, next: NextFuncti
         const { id } = req.params
         // select movie in db
         const movie = await selectMediaByPk(id)
-
-        const publicRatings = await selectPublicRatings(movie.media_id) 
-        const criticRatings = await selectCriticRatings(movie.media_id)
-        const publicScore = await selectPublicScore(movie.media_id)
-        const criticScore = await selectCriticScore(movie.media_id)
         
         const response = {
             id: movie.media_id,
@@ -108,10 +100,11 @@ export const getMovieById = async (req: Request, res: Response, next: NextFuncti
             posterUrl: movie.poster_url,
             trailerUrl: movie.trailer_url,
             apiId: movie.api_id,
-            publicRatings,
-            criticRatings,
-            publicScore,
-            criticScore
+            publicRatings: await selectPublicRatings(movie.media_id),
+            criticRatings: await selectCriticRatings(movie.media_id),
+            publicScore: await selectPublicScore(movie.media_id),
+            criticScore: await selectCriticScore(movie.media_id),
+            genres: await selectMediaGenres(movie.media_id)
         }
         
         res.status(200).json({

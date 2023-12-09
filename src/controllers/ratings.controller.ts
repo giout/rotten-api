@@ -8,7 +8,7 @@ export const postRating = async (req: Request, res: Response, next: NextFunction
         const rating = await selectRatingByPk(req.body)
         // if rating exists, it is deleted
         if (rating) 
-            await deleteRating({ userId, mediaId })
+            await deleteRating(req.body)
 
         const createdRating = await insertRating(req.body)
         res.status(201).json({
