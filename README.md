@@ -1,5 +1,7 @@
 <h1>Rotten tomatoes clone REST API</h1>
 
+<p>https://rotten-api.onrender.com</p>
+
 <p>This service uses data from <a href="https://www.themoviedb.org/">The Movie Database</a>.</p>
 
 <h2>Documentation</h2>
