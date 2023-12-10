@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS rotten.media (
     poster_url TEXT,
     trailer_url TEXT,
     media_api_id INTEGER NOT NULL,
-    UNIQUE (api_id),
+    UNIQUE (media_api_id),
     PRIMARY KEY(media_id)
 );
 
