@@ -12,6 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteUser = exports.putUser = exports.getUserById = exports.getAllUsers = exports.getAuthUser = void 0;
 const validation_util_1 = require("../utils/validation.util");
 const users_service_1 = require("../services/users.service");
+const crypt_util_1 = require("../utils/crypt.util");
 const getAuthUser = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         // get payload from token
@@ -62,6 +63,11 @@ const putUser = (req, res, next) => __awaiter(void 0, void 0, void 0, function* 
     try {
         const { id } = req.params;
         const { firstName, lastName, password } = req.body;
+        if (!(firstName || lastName || password))
+            (0, validation_util_1.dataMissing)();
+        (0, validation_util_1.verifyAuth)(req, id);
+        (0, validation_util_1.validatePassword)(password);
+        req.body.password = (0, crypt_util_1.encrypt)(password);
         const user = yield (0, users_service_1.updateUser)(id, req.body);
         res.status(200).json({
             code: 200,
@@ -76,7 +82,9 @@ exports.putUser = putUser;
 const deleteUser = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { id } = req.params;
-        yield (0, users_service_1.deleteUserBD)(id);
+        yield (0, validation_util_1.userExists)(id);
+        (0, validation_util_1.verifyAuth)(req, id);
+        yield (0, users_service_1.deleteUserByPk)(id);
         res.status(200).json({
             code: 200
         });

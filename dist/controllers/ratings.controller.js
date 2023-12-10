@@ -11,9 +11,13 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.postRating = void 0;
 const ratings_service_1 = require("../services/ratings.service");
+const validation_util_1 = require("../utils/validation.util");
 const postRating = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { userId, mediaId, score } = req.body;
+        if (!(userId && mediaId && score))
+            (0, validation_util_1.dataMissing)();
+        (0, validation_util_1.verifyAuth)(req, userId);
         // verify if rating already exists
         const rating = yield (0, ratings_service_1.selectRatingByPk)(req.body);
         // if rating exists, it is deleted

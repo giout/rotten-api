@@ -20,15 +20,14 @@ const users_service_1 = require("../services/users.service");
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const signUp = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        let { username, firstName, lastName, password, isCritic } = req.body;
+        const { username, firstName, lastName, password, isCritic } = req.body;
+        if (!(username && firstName && lastName && password && isCritic != undefined && isCritic != null))
+            (0, validation_util_1.dataMissing)();
         const user = yield (0, users_service_1.selectUserByUsername)(username);
         if (user)
             throw new error_util_1.CustomError('User already exists.', 400);
-        // validate empty fields
-        if (!(username && firstName && lastName && password && isCritic != undefined && isCritic != null))
-            throw new error_util_1.CustomError('Data is missing.', 400);
         (0, validation_util_1.validatePassword)(password);
-        password = (0, crypt_util_1.encrypt)(password);
+        req.body.password = (0, crypt_util_1.encrypt)(password);
         const createdUser = yield (0, users_service_1.insertUser)(req.body);
         res.status(201).json({
             code: 201,
@@ -43,17 +42,19 @@ exports.signUp = signUp;
 const logIn = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { username, password } = req.body;
+        if (!(username && password))
+            (0, validation_util_1.dataMissing)();
         // verify if user exists
         const user = yield (0, users_service_1.selectUserByUsername)(username);
         if (!user)
             throw new error_util_1.CustomError('User does not exist.', 404);
         // verify if password matches
-        const equals = (0, crypt_util_1.compareCrypted)(password, user.pass);
+        const equals = (0, crypt_util_1.compareCrypted)(password, user.password);
         if (!equals)
             throw new error_util_1.CustomError('Password is invalid.', 401);
         // create and send authentication token    
         const signature = process.env.TOKEN_SIGNATURE;
-        const payload = { id: user.user_id }; // data payload
+        const payload = { id: user.id }; // data payload
         const token = jsonwebtoken_1.default.sign(payload, signature, {
             expiresIn: 60 * 60 * 24 * 30 // 1 month
         });

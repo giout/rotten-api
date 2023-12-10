@@ -15,7 +15,6 @@ const axios_util_1 = require("../utils/axios.util");
 const api = 'https://api.themoviedb.org/3';
 const key = process.env.API_KEY;
 const headers = { 'Content-Type': 'application/json' };
-// each page contains 20 entries
 const findMovies = (query, page) => __awaiter(void 0, void 0, void 0, function* () {
     const url = api + '/search/movie';
     const request = yield (0, axios_util_1.getRequest)(url, headers, {

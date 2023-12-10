@@ -12,38 +12,54 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteCommentByPk = exports.selectCommentByPk = exports.createComment = exports.selectCommentsByReviewId = void 0;
+exports.deleteCommentByPk = exports.selectCommentByPk = exports.insertComment = exports.selectCommentsByReviewId = void 0;
 const database_1 = __importDefault(require("../config/database"));
 const comments_query_1 = __importDefault(require("../queries/comments.query"));
-var i = 0;
 const selectCommentsByReviewId = (reviewId) => __awaiter(void 0, void 0, void 0, function* () {
     const sentence = comments_query_1.default.select.by.reviewId;
     const comments = yield database_1.default.query(sentence, [reviewId]);
-    console.log(i++);
-    console.log(comments.rows);
-    return comments.rows;
+    const response = [];
+    comments.rows.map(comment => {
+        response.push({
+            id: comment.comment_id,
+            userId: comment.user_id,
+            content: comment.comment_content,
+            reviewId: comment.review_id,
+            date: comment.comment_date
+        });
+    });
+    return response;
 });
 exports.selectCommentsByReviewId = selectCommentsByReviewId;
-const createComment = (entry) => __awaiter(void 0, void 0, void 0, function* () {
+const insertComment = (entry) => __awaiter(void 0, void 0, void 0, function* () {
     const { userId, reviewId, content } = entry;
     const sentence = comments_query_1.default.insert;
-    const review = yield database_1.default.query(sentence, [userId, reviewId, content]);
-    console.log(i++);
-    console.log(review.rows[0]);
-    return review.rows[0];
+    const comment = yield database_1.default.query(sentence, [userId, reviewId, content]);
+    return {
+        id: comment.rows[0].comment_id,
+        userId: comment.rows[0].user_id,
+        content: comment.rows[0].comment_content,
+        reviewId: comment.rows[0].review_id,
+        date: comment.rows[0].comment_date
+    };
 });
-exports.createComment = createComment;
+exports.insertComment = insertComment;
 const selectCommentByPk = (id) => __awaiter(void 0, void 0, void 0, function* () {
     const sentence = comments_query_1.default.select.by.pk;
-    const review = yield database_1.default.query(sentence, [id]);
-    console.log(i++);
-    console.log(review.rows[0]);
-    return review.rows[0];
+    const comment = yield database_1.default.query(sentence, [id]);
+    if (!comment.rows[0])
+        return;
+    return {
+        id: comment.rows[0].comment_id,
+        userId: comment.rows[0].user_id,
+        content: comment.rows[0].comment_content,
+        reviewId: comment.rows[0].review_id,
+        date: comment.rows[0].comment_date
+    };
 });
 exports.selectCommentByPk = selectCommentByPk;
 const deleteCommentByPk = (id) => __awaiter(void 0, void 0, void 0, function* () {
     const sentence = comments_query_1.default.delete;
-    console.log(i++);
     yield database_1.default.query(sentence, [id]);
 });
 exports.deleteCommentByPk = deleteCommentByPk;

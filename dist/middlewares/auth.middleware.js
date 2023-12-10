@@ -9,19 +9,19 @@ const error_util_1 = require("../utils/error.util");
 const signature = process.env.TOKEN_SIGNATURE;
 const authentication = (req, res, next) => {
     const auth = req.headers['authorization'] || '';
-    // Esquema de autenticacion Bearer token
+    // authentication with Bearer token
     try {
         if (!auth.toLowerCase().startsWith('bearer') &&
             auth.split(' ').length !== 2) {
             throw new error_util_1.CustomError('Invalid bearer token.', 400);
         }
         const token = auth.split(' ')[1]; // Bearer[0] jf8jf8rf9ff4[1]
-        // Verificando que el token sea valido
+        // verify token is valid
         jsonwebtoken_1.default.verify(token, signature, (err, decoded) => {
             if (err) {
                 throw new error_util_1.CustomError('Invalid session.', 401);
             }
-            // Se agrega una propiedad al objeto request que contendra los datos del token
+            // add property to request object that contains token payload
             req.user = decoded;
         });
         return next();

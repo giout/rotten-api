@@ -17,6 +17,7 @@ const reviews_service_1 = require("../services/reviews.service");
 const genres_service_1 = require("../services/genres.service");
 const url_api_1 = require("../api/url.api");
 const mediaGenre_service_1 = require("../services/mediaGenre.service");
+const validation_util_1 = require("../utils/validation.util");
 // each page contains 20 entries
 const getAllMovies = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -56,28 +57,12 @@ const getAllMovies = (req, res, next) => __awaiter(void 0, void 0, void 0, funct
                         });
                     // add genre to movie
                     yield (0, mediaGenre_service_1.insertMediaGenre)({
-                        mediaId: movie.media_id,
-                        genreId: genre.genre_id
+                        mediaId: movie.id,
+                        genreId: genre.id
                     });
                 }
             }
-            // add to response movie genre
-            response.push({
-                id: movie.media_id,
-                title: movie.media_title,
-                overview: movie.overview,
-                adult: movie.adult,
-                language: movie.original_language,
-                date: movie.release_date,
-                posterUrl: movie.poster_url,
-                trailerUrl: movie.trailer_url,
-                apiId: movie.api_id,
-                publicRatings: yield (0, ratings_service_1.selectPublicRatings)(movie.media_id),
-                criticRatings: yield (0, ratings_service_1.selectCriticRatings)(movie.media_id),
-                publicScore: yield (0, ratings_service_1.selectPublicScore)(movie.media_id),
-                criticScore: yield (0, ratings_service_1.selectCriticScore)(movie.media_id),
-                genres: yield (0, mediaGenre_service_1.selectMediaGenres)(movie.media_id)
-            });
+            response.push(Object.assign(Object.assign({}, movie), { publicRatings: yield (0, ratings_service_1.selectPublicRatings)(movie.id), criticRatings: yield (0, ratings_service_1.selectCriticRatings)(movie.id), publicScore: yield (0, ratings_service_1.selectPublicScore)(movie.id), criticScore: yield (0, ratings_service_1.selectCriticScore)(movie.id), genres: yield (0, mediaGenre_service_1.selectMediaGenres)(movie.id) }));
         }
         res.status(200).json({
             code: 200,
@@ -93,23 +78,8 @@ const getMovieById = (req, res, next) => __awaiter(void 0, void 0, void 0, funct
     try {
         const { id } = req.params;
         // select movie in db
-        const movie = yield (0, media_service_1.selectMediaByPk)(id);
-        const response = {
-            id: movie.media_id,
-            title: movie.media_title,
-            overview: movie.overview,
-            adult: movie.adult,
-            language: movie.original_language,
-            date: movie.release_date,
-            posterUrl: movie.poster_url,
-            trailerUrl: movie.trailer_url,
-            apiId: movie.api_id,
-            publicRatings: yield (0, ratings_service_1.selectPublicRatings)(movie.media_id),
-            criticRatings: yield (0, ratings_service_1.selectCriticRatings)(movie.media_id),
-            publicScore: yield (0, ratings_service_1.selectPublicScore)(movie.media_id),
-            criticScore: yield (0, ratings_service_1.selectCriticScore)(movie.media_id),
-            genres: yield (0, mediaGenre_service_1.selectMediaGenres)(movie.media_id)
-        };
+        const movie = yield (0, validation_util_1.mediaExists)(id);
+        const response = Object.assign(Object.assign({}, movie), { publicRatings: yield (0, ratings_service_1.selectPublicRatings)(movie === null || movie === void 0 ? void 0 : movie.id), criticRatings: yield (0, ratings_service_1.selectCriticRatings)(movie === null || movie === void 0 ? void 0 : movie.id), publicScore: yield (0, ratings_service_1.selectPublicScore)(movie === null || movie === void 0 ? void 0 : movie.id), criticScore: yield (0, ratings_service_1.selectCriticScore)(movie === null || movie === void 0 ? void 0 : movie.id), genres: yield (0, mediaGenre_service_1.selectMediaGenres)(movie === null || movie === void 0 ? void 0 : movie.id) });
         res.status(200).json({
             code: 200,
             data: response
@@ -123,6 +93,7 @@ exports.getMovieById = getMovieById;
 const getMovieReviews = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { id } = req.params;
+        yield (0, validation_util_1.mediaExists)(id);
         const reviews = yield (0, reviews_service_1.selectReviewsByMedia)(id);
         res.status(200).json({
             code: 200,

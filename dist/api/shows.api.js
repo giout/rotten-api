@@ -9,13 +9,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.findShows = void 0;
+exports.getShowDetails = exports.getShowYTKey = exports.findShows = void 0;
 require("dotenv/config");
 const axios_util_1 = require("../utils/axios.util");
 const api = 'https://api.themoviedb.org/3';
 const key = process.env.API_KEY;
 const headers = { 'Content-Type': 'application/json' };
-// each page contains 20 entries
 const findShows = (query, page) => __awaiter(void 0, void 0, void 0, function* () {
     const url = api + '/search/tv';
     const request = yield (0, axios_util_1.getRequest)(url, headers, {
@@ -26,3 +25,21 @@ const findShows = (query, page) => __awaiter(void 0, void 0, void 0, function* (
     return request;
 });
 exports.findShows = findShows;
+const getShowYTKey = (id) => __awaiter(void 0, void 0, void 0, function* () {
+    const url = api + `/tv/${id}/videos`;
+    const request = yield (0, axios_util_1.getRequest)(url, headers, {
+        api_key: key
+    });
+    if (!request.results[0])
+        return null;
+    return request.results[0].key;
+});
+exports.getShowYTKey = getShowYTKey;
+const getShowDetails = (id) => __awaiter(void 0, void 0, void 0, function* () {
+    const url = api + `/tv/${id}`;
+    const request = yield (0, axios_util_1.getRequest)(url, headers, {
+        api_key: key
+    });
+    return request;
+});
+exports.getShowDetails = getShowDetails;

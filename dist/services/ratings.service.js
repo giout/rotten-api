@@ -19,15 +19,23 @@ const insertRating = (entry) => __awaiter(void 0, void 0, void 0, function* () {
     const { userId, mediaId, score } = entry;
     const sentence = ratings_query_1.default.insert;
     const rating = yield database_1.default.query(sentence, [userId, mediaId, score]);
-    return rating.rows[0];
+    return {
+        userId: rating.rows[0].user_id,
+        mediaId: rating.rows[0].media_id,
+        score: rating.rows[0].score,
+    };
 });
 exports.insertRating = insertRating;
 const selectRatingByPk = (entry) => __awaiter(void 0, void 0, void 0, function* () {
     const sentence = ratings_query_1.default.select.by.pk;
     const rating = yield database_1.default.query(sentence, [entry.userId, entry.mediaId]);
-    if (rating.rows[0])
-        return rating.rows[0];
-    return;
+    if (!rating.rows[0])
+        return;
+    return {
+        userId: rating.rows[0].user_id,
+        mediaId: rating.rows[0].media_id,
+        score: rating.rows[0].score,
+    };
 });
 exports.selectRatingByPk = selectRatingByPk;
 const deleteRating = (entry) => __awaiter(void 0, void 0, void 0, function* () {

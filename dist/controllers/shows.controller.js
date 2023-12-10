@@ -14,55 +14,54 @@ const reviews_service_1 = require("../services/reviews.service");
 const shows_api_1 = require("../api/shows.api");
 const media_service_1 = require("../services/media.service");
 const ratings_service_1 = require("../services/ratings.service");
+const url_api_1 = require("../api/url.api");
+const genres_service_1 = require("../services/genres.service");
+const mediaGenre_service_1 = require("../services/mediaGenre.service");
+const validation_util_1 = require("../utils/validation.util");
 const getAllShows = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         let { search, page } = req.query;
         if (!page)
             page = '1';
-        // find movies in external api
+        // find shows in external api
         const request = yield (0, shows_api_1.findShows)(search, page);
         const apiShows = request.results;
         const response = [];
         // each page brings 20 entries
         // in current page, iterate over every entry
         for (const apiShow of apiShows) {
-            // verify if movie exists in database
-            let movie = yield (0, media_service_1.selectMediaByApiId)(apiShow.id);
-            if (!movie) {
+            // verify if show exists in database
+            let show = yield (0, media_service_1.selectMediaByApiId)(apiShow.id);
+            if (!show) {
+                const trailer = yield (0, shows_api_1.getShowYTKey)(apiShow.id);
                 // if it aint, save it
-                movie = yield (0, media_service_1.insertMedia)({
-                    isTv: true,
+                show = yield (0, media_service_1.insertMedia)({
+                    isTv: false,
                     title: apiShow.original_name,
                     overview: apiShow.overview,
                     adult: apiShow.adult,
                     language: apiShow.original_language,
                     date: apiShow.release_date || null,
-                    posterUrl: apiShow.poster_path,
-                    trailerUrl: apiShow.backdrop_path,
+                    posterUrl: url_api_1.image + apiShow.poster_path,
+                    trailerUrl: url_api_1.video + trailer,
                     apiId: apiShow.id
                 });
+                const details = yield (0, shows_api_1.getShowDetails)(apiShow.id);
+                for (const apiGenre of details.genres) {
+                    let genre = yield (0, genres_service_1.selectGenreByApiId)(apiGenre.id);
+                    if (!genre)
+                        genre = yield (0, genres_service_1.insertGenre)({
+                            apiId: apiGenre.id,
+                            title: apiGenre.name
+                        });
+                    // add genre to show
+                    yield (0, mediaGenre_service_1.insertMediaGenre)({
+                        mediaId: show.id,
+                        genreId: genre.id
+                    });
+                }
             }
-            // verify if genre exists, if it aint, insert it
-            // calculate:
-            const publicRatings = yield (0, ratings_service_1.selectPublicRatings)(movie.media_id);
-            const criticRatings = yield (0, ratings_service_1.selectCriticRatings)(movie.media_id);
-            const publicScore = yield (0, ratings_service_1.selectPublicScore)(movie.media_id);
-            const criticScore = yield (0, ratings_service_1.selectCriticScore)(movie.media_id);
-            response.push({
-                id: movie.media_id,
-                title: movie.media_title,
-                overview: movie.overview,
-                adult: movie.adult,
-                language: movie.original_language,
-                date: movie.release_date,
-                posterUrl: movie.poster_url,
-                trailerUrl: movie.trailer_url,
-                apiId: movie.api_id,
-                publicRatings,
-                criticRatings,
-                publicScore,
-                criticScore,
-            });
+            response.push(Object.assign(Object.assign({}, show), { publicRatings: yield (0, ratings_service_1.selectPublicRatings)(show.id), criticRatings: yield (0, ratings_service_1.selectCriticRatings)(show.id), publicScore: yield (0, ratings_service_1.selectPublicScore)(show.id), criticScore: yield (0, ratings_service_1.selectCriticScore)(show.id), genres: yield (0, mediaGenre_service_1.selectMediaGenres)(show.id) }));
         }
         res.status(200).json({
             code: 200,
@@ -78,26 +77,8 @@ const getShowById = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
     try {
         const { id } = req.params;
         // select show in db
-        const show = yield (0, media_service_1.selectMediaByPk)(id);
-        const publicRatings = yield (0, ratings_service_1.selectPublicRatings)(show.media_id);
-        const criticRatings = yield (0, ratings_service_1.selectCriticRatings)(show.media_id);
-        const publicScore = yield (0, ratings_service_1.selectPublicScore)(show.media_id);
-        const criticScore = yield (0, ratings_service_1.selectCriticScore)(show.media_id);
-        const response = {
-            id: show.media_id,
-            title: show.media_title,
-            overview: show.overview,
-            adult: show.adult,
-            language: show.original_language,
-            date: show.release_date,
-            posterUrl: show.poster_url,
-            trailerUrl: show.trailer_url,
-            apiId: show.api_id,
-            publicRatings,
-            criticRatings,
-            publicScore,
-            criticScore
-        };
+        const show = yield (0, validation_util_1.mediaExists)(id);
+        const response = Object.assign(Object.assign({}, show), { publicRatings: yield (0, ratings_service_1.selectPublicRatings)(show === null || show === void 0 ? void 0 : show.id), criticRatings: yield (0, ratings_service_1.selectCriticRatings)(show === null || show === void 0 ? void 0 : show.id), publicScore: yield (0, ratings_service_1.selectPublicScore)(show === null || show === void 0 ? void 0 : show.id), criticScore: yield (0, ratings_service_1.selectCriticScore)(show === null || show === void 0 ? void 0 : show.id), genres: yield (0, mediaGenre_service_1.selectMediaGenres)(show === null || show === void 0 ? void 0 : show.id) });
         res.status(200).json({
             code: 200,
             data: response
@@ -111,6 +92,7 @@ exports.getShowById = getShowById;
 const getShowReviews = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { id } = req.params;
+        yield (0, validation_util_1.mediaExists)(id);
         const reviews = yield (0, reviews_service_1.selectReviewsByMedia)(id);
         res.status(200).json({
             code: 200,

@@ -18,9 +18,18 @@ const media_query_1 = __importDefault(require("../queries/media.query"));
 const selectMediaByApiId = (id) => __awaiter(void 0, void 0, void 0, function* () {
     const sentence = media_query_1.default.select.by.apiId;
     const media = yield database_1.default.query(sentence, [id]);
-    if (media.rows[0])
-        return media.rows[0];
-    return;
+    if (!media.rows[0])
+        return;
+    return {
+        id: media.rows[0].media_id,
+        title: media.rows[0].media_title,
+        overview: media.rows[0].overview,
+        adult: media.rows[0].adult,
+        language: media.rows[0].original_language,
+        date: media.rows[0].release_date,
+        posterUrl: media.rows[0].poster_url,
+        trailerUrl: media.rows[0].trailer_url
+    };
 });
 exports.selectMediaByApiId = selectMediaByApiId;
 const insertMedia = (entry) => __awaiter(void 0, void 0, void 0, function* () {
@@ -36,14 +45,32 @@ const insertMedia = (entry) => __awaiter(void 0, void 0, void 0, function* () {
         entry.trailerUrl,
         entry.apiId
     ]);
-    return media.rows[0];
+    return {
+        id: media.rows[0].media_id,
+        title: media.rows[0].media_title,
+        overview: media.rows[0].overview,
+        adult: media.rows[0].adult,
+        language: media.rows[0].original_language,
+        date: media.rows[0].release_date,
+        posterUrl: media.rows[0].poster_url,
+        trailerUrl: media.rows[0].trailer_url
+    };
 });
 exports.insertMedia = insertMedia;
 const selectMediaByPk = (id) => __awaiter(void 0, void 0, void 0, function* () {
     const sentence = media_query_1.default.select.by.pk;
     const media = yield database_1.default.query(sentence, [id]);
-    if (media.rows[0])
-        return media.rows[0];
-    return;
+    if (!media.rows[0])
+        return;
+    return {
+        id: media.rows[0].media_id,
+        title: media.rows[0].media_title,
+        overview: media.rows[0].overview,
+        adult: media.rows[0].adult,
+        language: media.rows[0].original_language,
+        date: media.rows[0].release_date,
+        posterUrl: media.rows[0].poster_url,
+        trailerUrl: media.rows[0].trailer_url
+    };
 });
 exports.selectMediaByPk = selectMediaByPk;

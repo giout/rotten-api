@@ -12,34 +12,50 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.selectGenreByApiId = exports.selectGenreById = exports.insertGenre = exports.selectAllGenres = void 0;
+exports.selectGenreByApiId = exports.selectGenreByPk = exports.insertGenre = exports.selectAllGenres = void 0;
 const genres_query_1 = __importDefault(require("../queries/genres.query"));
 const database_1 = __importDefault(require("../config/database"));
 const selectAllGenres = () => __awaiter(void 0, void 0, void 0, function* () {
     const sentence = genres_query_1.default.select.any;
     const genres = yield database_1.default.query(sentence, []);
-    return genres.rows;
+    const response = [];
+    genres.rows.map(genre => {
+        response.push({
+            id: genre.genre_id,
+            title: genre.genre_title
+        });
+    });
+    return response;
 });
 exports.selectAllGenres = selectAllGenres;
 const insertGenre = (entry) => __awaiter(void 0, void 0, void 0, function* () {
     const sentence = genres_query_1.default.insert;
     const genre = yield database_1.default.query(sentence, [entry.title, entry.apiId]);
-    return genre.rows[0];
+    return {
+        id: genre.rows[0].genre_id,
+        title: genre.rows[0].genre_title
+    };
 });
 exports.insertGenre = insertGenre;
-const selectGenreById = (id) => __awaiter(void 0, void 0, void 0, function* () {
+const selectGenreByPk = (id) => __awaiter(void 0, void 0, void 0, function* () {
     const sentence = genres_query_1.default.select.by.pk;
     const genre = yield database_1.default.query(sentence, [id]);
-    if (genre.rows[0])
-        return genre.rows[0];
-    return;
+    if (!genre.rows[0])
+        return;
+    return {
+        id: genre.rows[0].genre_id,
+        title: genre.rows[0].genre_title
+    };
 });
-exports.selectGenreById = selectGenreById;
+exports.selectGenreByPk = selectGenreByPk;
 const selectGenreByApiId = (apiId) => __awaiter(void 0, void 0, void 0, function* () {
     const sentence = genres_query_1.default.select.by.apiId;
     const genre = yield database_1.default.query(sentence, [apiId]);
-    if (genre.rows[0])
-        return genre.rows[0];
-    return;
+    if (!genre.rows[0])
+        return;
+    return {
+        id: genre.rows[0].genre_id,
+        title: genre.rows[0].genre_title
+    };
 });
 exports.selectGenreByApiId = selectGenreByApiId;
