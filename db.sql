@@ -28,7 +28,7 @@ CREATE TABLE IF NOT EXISTS rotten.media_genre (
     genre_id INTEGER,
     PRIMARY KEY (media_id, genre_id),
     FOREIGN KEY (media_id) REFERENCES rotten.media (media_id) ON DELETE CASCADE,
-    FOREIGN KEY (genre_id) REFERENCES rotten.genre (genre_id) ON DELETE CASCADE
+    FOREIGN KEY (genre_id) REFERENCES rotten.genres (genre_id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS rotten.users (
