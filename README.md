@@ -5,7 +5,7 @@
 <p>This service uses data from <a href="https://www.themoviedb.org/">The Movie Database</a>.</p>
 
 <h2>Documentation</h2>
-<p>https://blue-moon-844138.postman.co/workspace/My-Workspace~130b2714-baf0-414b-89b1-04d8942f9ebc/documentation/27562812-b0e1be68-c156-459c-899f-3ee652076f93</p>
+<p>https://documenter.getpostman.com/view/27562812/2s9YkgEkmM</p>
 
 <h2>Environment variables</h2>
 <table>
