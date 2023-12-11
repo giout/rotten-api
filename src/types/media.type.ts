@@ -1,3 +1,5 @@
+import { Genre } from "./genres.type"
+
 export interface Media {
     id: number,
     title: string,

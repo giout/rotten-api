@@ -7,17 +7,18 @@ import { insertGenre, selectGenreByApiId } from "../services/genres.service"
 import { image, video } from "../api/url.api"
 import { insertMediaGenre, selectMediaGenres } from "../services/mediaGenre.service"
 import { mediaExists } from "../utils/validation.util"
+import { filterMediaByGenre, filterMediaByYear, orderMedia } from "../utils/filter.util"
 
 // each page contains 20 entries
 export const getAllMovies = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        let { search, page } = req.query
+        let { search, page, genre, order, year } = req.query
         if (!page) page = '1'
 
         // find movies in external api
         const request = await findMovies(<string> search, <string> page)
         const apiMovies = request.results
-        const response = []
+        let response = []
 
         // each page brings 20 entries
         // in current page, iterate over every entry
@@ -66,6 +67,15 @@ export const getAllMovies = async (req: Request, res: Response, next: NextFuncti
                 genres: await selectMediaGenres(movie.id)
             })
         }
+
+        if (year)
+            response = filterMediaByYear(response, <string> year)
+
+        if (genre)
+            response = filterMediaByGenre(response, <string> genre)
+        
+        if (order)
+            response = orderMedia(response, <string> order)
         
         res.status(200).json({
             code: 200,
@@ -84,11 +94,11 @@ export const getMovieById = async (req: Request, res: Response, next: NextFuncti
         
         const response = {
             ...movie,
-            publicRatings: await selectPublicRatings(movie?.id),
-            criticRatings: await selectCriticRatings(movie?.id),
-            publicScore: await selectPublicScore(movie?.id),
-            criticScore: await selectCriticScore(movie?.id),
-            genres: await selectMediaGenres(movie?.id)
+            publicRatings: await selectPublicRatings(movie.id),
+            criticRatings: await selectCriticRatings(movie.id),
+            publicScore: await selectPublicScore(movie.id),
+            criticScore: await selectCriticScore(movie.id),
+            genres: await selectMediaGenres(movie.id)
         }
         
         res.status(200).json({

@@ -7,16 +7,17 @@ import { image, video } from "../api/url.api"
 import { insertGenre, selectGenreByApiId } from "../services/genres.service"
 import { insertMediaGenre, selectMediaGenres } from "../services/mediaGenre.service"
 import { mediaExists } from "../utils/validation.util"
+import { filterMediaByGenre, filterMediaByYear, orderMedia } from "../utils/filter.util"
 
 export const getAllShows = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        let { search, page } = req.query
+        let { search, page, year, genre, order } = req.query
         if (!page) page = '1'
 
         // find shows in external api
         const request = await findShows(<string> search, <string> page)
         const apiShows = request.results
-        const response = []
+        let response = []
 
         // each page brings 20 entries
         // in current page, iterate over every entry
@@ -28,12 +29,12 @@ export const getAllShows = async (req: Request, res: Response, next: NextFunctio
 
                 // if it aint, save it
                 show = await insertMedia({
-                    isTv: false,
+                    isTv: true,
                     title: apiShow.original_name,
                     overview: apiShow.overview,
                     adult: apiShow.adult,
                     language: apiShow.original_language,
-                    date: apiShow.release_date || null, 
+                    date: apiShow.first_air_date || null, 
                     posterUrl: image + apiShow.poster_path,
                     trailerUrl: video + trailer,
                     apiId: apiShow.id
@@ -65,6 +66,15 @@ export const getAllShows = async (req: Request, res: Response, next: NextFunctio
                 genres: await selectMediaGenres(show.id)
             })
         }
+
+        if (year)
+            response = filterMediaByYear(response, <string> year)
+
+        if (genre)
+            response = filterMediaByGenre(response, <string> genre)
+    
+        if (order)
+            response = orderMedia(response, <string> order)
         
         res.status(200).json({
             code: 200,
@@ -84,11 +94,11 @@ export const getShowById = async (req: Request, res: Response, next: NextFunctio
 
         const response = {
             ...show,
-            publicRatings: await selectPublicRatings(show?.id) ,
-            criticRatings: await selectCriticRatings(show?.id),
-            publicScore: await selectPublicScore(show?.id),
-            criticScore: await selectCriticScore(show?.id),
-            genres: await selectMediaGenres(show?.id)
+            publicRatings: await selectPublicRatings(show.id) ,
+            criticRatings: await selectCriticRatings(show.id),
+            publicScore: await selectPublicScore(show.id),
+            criticScore: await selectCriticScore(show.id),
+            genres: await selectMediaGenres(show.id)
         }
 
         res.status(200).json({

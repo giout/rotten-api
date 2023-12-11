@@ -1,5 +1,6 @@
 import pool from "../config/database"
 import queries from "../queries/mediaGenre.query"
+import { Genre } from "../types/genres.type"
 
 export const insertMediaGenre = async (entry: any) => {
     const sentence = queries.insert
@@ -10,5 +11,12 @@ export const insertMediaGenre = async (entry: any) => {
 export const selectMediaGenres = async (mediaId: string) => {
     const sentence = queries.select.by.media
     const result = await pool.query(sentence, [mediaId])
-    return result.rows.map(r => r.genre_title)
+    const response: Genre[] = []
+    result.rows.map(r => {
+        response.push({
+            id: r.genre_id,
+            title: r.genre_title
+        })
+    })
+    return response
 }
