@@ -24,6 +24,13 @@ exports.insertMediaGenre = insertMediaGenre;
 const selectMediaGenres = (mediaId) => __awaiter(void 0, void 0, void 0, function* () {
     const sentence = mediaGenre_query_1.default.select.by.media;
     const result = yield database_1.default.query(sentence, [mediaId]);
-    return result.rows.map(r => r.genre_title);
+    const response = [];
+    result.rows.map(r => {
+        response.push({
+            id: r.genre_id,
+            title: r.genre_title
+        });
+    });
+    return response;
 });
 exports.selectMediaGenres = selectMediaGenres;

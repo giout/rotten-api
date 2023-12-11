@@ -18,16 +18,17 @@ const genres_service_1 = require("../services/genres.service");
 const url_api_1 = require("../api/url.api");
 const mediaGenre_service_1 = require("../services/mediaGenre.service");
 const validation_util_1 = require("../utils/validation.util");
+const filter_util_1 = require("../utils/filter.util");
 // each page contains 20 entries
 const getAllMovies = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        let { search, page } = req.query;
+        let { search, page, genre, order, year } = req.query;
         if (!page)
             page = '1';
         // find movies in external api
         const request = yield (0, movies_api_1.findMovies)(search, page);
         const apiMovies = request.results;
-        const response = [];
+        let response = [];
         // each page brings 20 entries
         // in current page, iterate over every entry
         for (const apiMovie of apiMovies) {
@@ -64,6 +65,12 @@ const getAllMovies = (req, res, next) => __awaiter(void 0, void 0, void 0, funct
             }
             response.push(Object.assign(Object.assign({}, movie), { publicRatings: yield (0, ratings_service_1.selectPublicRatings)(movie.id), criticRatings: yield (0, ratings_service_1.selectCriticRatings)(movie.id), publicScore: yield (0, ratings_service_1.selectPublicScore)(movie.id), criticScore: yield (0, ratings_service_1.selectCriticScore)(movie.id), genres: yield (0, mediaGenre_service_1.selectMediaGenres)(movie.id) }));
         }
+        if (year)
+            response = (0, filter_util_1.filterMediaByYear)(response, year);
+        if (genre)
+            response = (0, filter_util_1.filterMediaByGenre)(response, genre);
+        if (order)
+            response = (0, filter_util_1.orderMedia)(response, order);
         res.status(200).json({
             code: 200,
             data: response
@@ -79,7 +86,7 @@ const getMovieById = (req, res, next) => __awaiter(void 0, void 0, void 0, funct
         const { id } = req.params;
         // select movie in db
         const movie = yield (0, validation_util_1.mediaExists)(id);
-        const response = Object.assign(Object.assign({}, movie), { publicRatings: yield (0, ratings_service_1.selectPublicRatings)(movie === null || movie === void 0 ? void 0 : movie.id), criticRatings: yield (0, ratings_service_1.selectCriticRatings)(movie === null || movie === void 0 ? void 0 : movie.id), publicScore: yield (0, ratings_service_1.selectPublicScore)(movie === null || movie === void 0 ? void 0 : movie.id), criticScore: yield (0, ratings_service_1.selectCriticScore)(movie === null || movie === void 0 ? void 0 : movie.id), genres: yield (0, mediaGenre_service_1.selectMediaGenres)(movie === null || movie === void 0 ? void 0 : movie.id) });
+        const response = Object.assign(Object.assign({}, movie), { publicRatings: yield (0, ratings_service_1.selectPublicRatings)(movie.id), criticRatings: yield (0, ratings_service_1.selectCriticRatings)(movie.id), publicScore: yield (0, ratings_service_1.selectPublicScore)(movie.id), criticScore: yield (0, ratings_service_1.selectCriticScore)(movie.id), genres: yield (0, mediaGenre_service_1.selectMediaGenres)(movie.id) });
         res.status(200).json({
             code: 200,
             data: response
