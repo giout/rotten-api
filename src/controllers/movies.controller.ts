@@ -1,13 +1,14 @@
 import { Request, Response, NextFunction } from "express"
 import { findMovies, getMovieDetails, getMovieYTKey } from "../api/movies.api"
 import { insertMedia, selectMediaByApiId, selectMediaByPk } from "../services/media.service"
-import { selectCriticRatings, selectCriticScore, selectPublicRatings, selectPublicScore } from "../services/ratings.service"
+import { selectCriticRatings, selectCriticScore, selectPublicRatings, selectPublicScore, selectRatingByPk } from "../services/ratings.service"
 import { selectReviewsByMedia } from "../services/reviews.service"
 import { insertGenre, selectGenreByApiId } from "../services/genres.service"
 import { image, video } from "../api/url.api"
 import { insertMediaGenre, selectMediaGenres } from "../services/mediaGenre.service"
 import { mediaExists } from "../utils/validation.util"
 import { filterMediaByGenre, filterMediaByYear, orderMedia } from "../utils/filter.util"
+import { AuthRequest } from "../types/auth.type"
 
 // each page contains 20 entries
 export const getAllMovies = async (req: Request, res: Response, next: NextFunction) => {
@@ -91,14 +92,25 @@ export const getMovieById = async (req: Request, res: Response, next: NextFuncti
         const { id } = req.params
         // select movie in db
         const movie = await mediaExists(id)
-        
+
+        // rating by the auth user
+        const { user } = (req as AuthRequest)
+        const rating = await selectRatingByPk({ 
+            userId: user.id, 
+            mediaId: movie.id 
+        })            
+        let score = 0
+        if (rating)
+            score = parseFloat(rating.score)
+
         const response = {
             ...movie,
             publicRatings: await selectPublicRatings(movie.id),
             criticRatings: await selectCriticRatings(movie.id),
             publicScore: await selectPublicScore(movie.id),
             criticScore: await selectCriticScore(movie.id),
-            genres: await selectMediaGenres(movie.id)
+            genres: await selectMediaGenres(movie.id),
+            userRate: score
         }
         
         res.status(200).json({

@@ -86,7 +86,16 @@ const getMovieById = (req, res, next) => __awaiter(void 0, void 0, void 0, funct
         const { id } = req.params;
         // select movie in db
         const movie = yield (0, validation_util_1.mediaExists)(id);
-        const response = Object.assign(Object.assign({}, movie), { publicRatings: yield (0, ratings_service_1.selectPublicRatings)(movie.id), criticRatings: yield (0, ratings_service_1.selectCriticRatings)(movie.id), publicScore: yield (0, ratings_service_1.selectPublicScore)(movie.id), criticScore: yield (0, ratings_service_1.selectCriticScore)(movie.id), genres: yield (0, mediaGenre_service_1.selectMediaGenres)(movie.id) });
+        // rating by the auth user
+        const { user } = req;
+        const rating = yield (0, ratings_service_1.selectRatingByPk)({
+            userId: user.id,
+            mediaId: movie.id
+        });
+        let score = 0;
+        if (rating)
+            score = parseFloat(rating.score);
+        const response = Object.assign(Object.assign({}, movie), { publicRatings: yield (0, ratings_service_1.selectPublicRatings)(movie.id), criticRatings: yield (0, ratings_service_1.selectCriticRatings)(movie.id), publicScore: yield (0, ratings_service_1.selectPublicScore)(movie.id), criticScore: yield (0, ratings_service_1.selectCriticScore)(movie.id), genres: yield (0, mediaGenre_service_1.selectMediaGenres)(movie.id), userRate: score });
         res.status(200).json({
             code: 200,
             data: response

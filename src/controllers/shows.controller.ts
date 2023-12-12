@@ -2,12 +2,13 @@ import { Request, Response, NextFunction } from "express"
 import { selectReviewsByMedia } from "../services/reviews.service"
 import { findShows, getShowDetails, getShowYTKey } from "../api/shows.api"
 import { insertMedia, selectMediaByApiId, selectMediaByPk } from "../services/media.service"
-import { selectCriticRatings, selectCriticScore, selectPublicRatings, selectPublicScore } from "../services/ratings.service"
+import { selectCriticRatings, selectCriticScore, selectPublicRatings, selectPublicScore, selectRatingByPk } from "../services/ratings.service"
 import { image, video } from "../api/url.api"
 import { insertGenre, selectGenreByApiId } from "../services/genres.service"
 import { insertMediaGenre, selectMediaGenres } from "../services/mediaGenre.service"
 import { mediaExists } from "../utils/validation.util"
 import { filterMediaByGenre, filterMediaByYear, orderMedia } from "../utils/filter.util"
+import { AuthRequest } from "../types/auth.type"
 
 export const getAllShows = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -91,6 +92,16 @@ export const getShowById = async (req: Request, res: Response, next: NextFunctio
         const { id } = req.params
         // select show in db
         const show = await mediaExists(id)
+        // rating by the auth user
+        const { user } = (req as AuthRequest)
+        const rating = await selectRatingByPk({ 
+            userId: user.id, 
+            mediaId: show.id 
+        })            
+        let score = 0
+        if (rating)
+            score = parseFloat(rating.score)
+
 
         const response = {
             ...show,
@@ -98,7 +109,8 @@ export const getShowById = async (req: Request, res: Response, next: NextFunctio
             criticRatings: await selectCriticRatings(show.id),
             publicScore: await selectPublicScore(show.id),
             criticScore: await selectCriticScore(show.id),
-            genres: await selectMediaGenres(show.id)
+            genres: await selectMediaGenres(show.id),
+            userRate: score
         }
 
         res.status(200).json({

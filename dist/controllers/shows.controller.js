@@ -85,7 +85,16 @@ const getShowById = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
         const { id } = req.params;
         // select show in db
         const show = yield (0, validation_util_1.mediaExists)(id);
-        const response = Object.assign(Object.assign({}, show), { publicRatings: yield (0, ratings_service_1.selectPublicRatings)(show.id), criticRatings: yield (0, ratings_service_1.selectCriticRatings)(show.id), publicScore: yield (0, ratings_service_1.selectPublicScore)(show.id), criticScore: yield (0, ratings_service_1.selectCriticScore)(show.id), genres: yield (0, mediaGenre_service_1.selectMediaGenres)(show.id) });
+        // rating by the auth user
+        const { user } = req;
+        const rating = yield (0, ratings_service_1.selectRatingByPk)({
+            userId: user.id,
+            mediaId: show.id
+        });
+        let score = 0;
+        if (rating)
+            score = parseFloat(rating.score);
+        const response = Object.assign(Object.assign({}, show), { publicRatings: yield (0, ratings_service_1.selectPublicRatings)(show.id), criticRatings: yield (0, ratings_service_1.selectCriticRatings)(show.id), publicScore: yield (0, ratings_service_1.selectPublicScore)(show.id), criticScore: yield (0, ratings_service_1.selectCriticScore)(show.id), genres: yield (0, mediaGenre_service_1.selectMediaGenres)(show.id), userRate: score });
         res.status(200).json({
             code: 200,
             data: response
