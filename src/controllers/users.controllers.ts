@@ -60,8 +60,10 @@ export const putUser = async (req: Request, res: Response, next: NextFunction) =
             dataMissing()
         
         verifyAuth(req, id)
-        validatePassword(password)
-        req.body.password = encrypt(password)
+        if (password) {
+            validatePassword(password)
+            req.body.password = encrypt(password)
+        }
 
         const user = await updateUser(id, req.body)
         res.status(200).json({

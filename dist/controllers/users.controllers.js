@@ -66,8 +66,10 @@ const putUser = (req, res, next) => __awaiter(void 0, void 0, void 0, function* 
         if (!(firstName || lastName || password))
             (0, validation_util_1.dataMissing)();
         (0, validation_util_1.verifyAuth)(req, id);
-        (0, validation_util_1.validatePassword)(password);
-        req.body.password = (0, crypt_util_1.encrypt)(password);
+        if (password) {
+            (0, validation_util_1.validatePassword)(password);
+            req.body.password = (0, crypt_util_1.encrypt)(password);
+        }
         const user = yield (0, users_service_1.updateUser)(id, req.body);
         res.status(200).json({
             code: 200,
