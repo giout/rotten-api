@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.selectCriticScore = exports.selectPublicScore = exports.selectCriticRatings = exports.selectPublicRatings = exports.deleteRating = exports.selectRatingByPk = exports.insertRating = void 0;
+exports.selectRatingsByUser = exports.selectCriticScore = exports.selectPublicScore = exports.selectCriticRatings = exports.selectPublicRatings = exports.deleteRating = exports.selectRatingByPk = exports.insertRating = void 0;
 const database_1 = __importDefault(require("../config/database"));
 const ratings_query_1 = __importDefault(require("../queries/ratings.query"));
 const insertRating = (entry) => __awaiter(void 0, void 0, void 0, function* () {
@@ -71,3 +71,9 @@ const selectCriticScore = (mediaId) => __awaiter(void 0, void 0, void 0, functio
     return parseFloat(ratings.rows[0].avg);
 });
 exports.selectCriticScore = selectCriticScore;
+const selectRatingsByUser = (userId) => __awaiter(void 0, void 0, void 0, function* () {
+    const sentence = ratings_query_1.default.select.count.userRatings;
+    const ratings = yield database_1.default.query(sentence, [userId]);
+    return parseInt(ratings.rows[0].count);
+});
+exports.selectRatingsByUser = selectRatingsByUser;

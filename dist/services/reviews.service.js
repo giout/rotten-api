@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteReviewByPk = exports.selectReviewByPk = exports.createReview = exports.selectReviewsByMedia = void 0;
+exports.selectReviewsByUser = exports.deleteReviewByPk = exports.selectReviewByPk = exports.createReview = exports.selectReviewsByMedia = void 0;
 const database_1 = __importDefault(require("../config/database"));
 const reviews_query_1 = __importDefault(require("../queries/reviews.query"));
 const selectReviewsByMedia = (movieId) => __awaiter(void 0, void 0, void 0, function* () {
@@ -63,3 +63,9 @@ const deleteReviewByPk = (id) => __awaiter(void 0, void 0, void 0, function* () 
     yield database_1.default.query(sentence, [id]);
 });
 exports.deleteReviewByPk = deleteReviewByPk;
+const selectReviewsByUser = (userId) => __awaiter(void 0, void 0, void 0, function* () {
+    const sentence = reviews_query_1.default.select.count.userReviews;
+    const reviews = yield database_1.default.query(sentence, [userId]);
+    return parseInt(reviews.rows[0].count);
+});
+exports.selectReviewsByUser = selectReviewsByUser;

@@ -13,6 +13,8 @@ exports.deleteUser = exports.putUser = exports.getUserById = exports.getAllUsers
 const validation_util_1 = require("../utils/validation.util");
 const users_service_1 = require("../services/users.service");
 const crypt_util_1 = require("../utils/crypt.util");
+const ratings_service_1 = require("../services/ratings.service");
+const reviews_service_1 = require("../services/reviews.service");
 const getAuthUser = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         // get payload from token
@@ -47,11 +49,9 @@ const getUserById = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
     try {
         const { id } = req.params;
         const user = yield (0, validation_util_1.userExists)(id);
-        // get ratings and add them to user
-        // get reviews and add them to user
         res.status(200).json({
             code: 200,
-            data: user
+            data: Object.assign(Object.assign({}, user), { ratings: yield (0, ratings_service_1.selectRatingsByUser)(id), reviews: yield (0, reviews_service_1.selectReviewsByUser)(id) })
         });
     }
     catch (e) {

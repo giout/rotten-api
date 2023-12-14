@@ -3,6 +3,8 @@ import { AuthRequest } from "../types/auth.type"
 import { dataMissing, userExists, validatePassword, verifyAuth } from "../utils/validation.util"
 import { deleteUserByPk, selectAllUsers, updateUser } from "../services/users.service"
 import { encrypt } from "../utils/crypt.util"
+import { selectRatingsByUser } from "../services/ratings.service"
+import { selectReviewsByUser } from "../services/reviews.service"
 
 export const getAuthUser = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -36,11 +38,13 @@ export const getUserById = async (req: Request, res: Response, next: NextFunctio
     try {
         const { id } = req.params
         const user = await userExists(id)
-        // get ratings and add them to user
-        // get reviews and add them to user
         res.status(200).json({
             code: 200,
-            data: user
+            data: {
+                ...user,
+                ratings: await selectRatingsByUser(id),
+                reviews: await selectReviewsByUser(id)
+            }
         })
     } catch(e) {
         next(e)

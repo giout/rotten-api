@@ -8,7 +8,8 @@ const queries = {
         },
         count: {
             criticRatings: `SELECT COUNT(*) FROM ${table} r INNER JOIN ${userTable} u ON r.user_id=u.user_id WHERE u.is_critic=true AND r.media_id=$1`,
-            publicRatings: `SELECT COUNT(*) FROM ${table} r INNER JOIN ${userTable} u ON r.user_id=u.user_id WHERE u.is_critic=false AND r.media_id=$1`
+            publicRatings: `SELECT COUNT(*) FROM ${table} r INNER JOIN ${userTable} u ON r.user_id=u.user_id WHERE u.is_critic=false AND r.media_id=$1`,
+            userRatings: `SELECT COUNT(*) FROM ${table} WHERE user_id=$1`
         },
         average: {
             criticScore: `SELECT AVG(r.score) FROM rotten.ratings r INNER JOIN rotten.users u ON r.user_id=u.user_id WHERE u.is_critic=true AND r.media_id=$1`,

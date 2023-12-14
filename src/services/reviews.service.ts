@@ -50,3 +50,9 @@ export const deleteReviewByPk = async (id: string) => {
     const sentence = queries.delete
     await pool.query(sentence, [id])
 }
+
+export const selectReviewsByUser = async (userId: string) => {
+    const sentence = queries.select.count.userReviews
+    const reviews = await pool.query(sentence, [userId])
+    return parseInt(reviews.rows[0].count)
+}

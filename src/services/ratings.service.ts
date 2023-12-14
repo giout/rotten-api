@@ -62,3 +62,9 @@ export const selectCriticScore = async (mediaId: string) => {
      
     return parseFloat(ratings.rows[0].avg)
 }
+
+export const selectRatingsByUser = async (userId: string) => {
+    const sentence = queries.select.count.userRatings
+    const ratings = await pool.query(sentence, [userId])
+    return parseInt(ratings.rows[0].count)
+}
