@@ -73,7 +73,7 @@ export const getShowById = async (req: Request, res: Response, next: NextFunctio
                 language: apiShow.original_language,
                 date: apiShow.first_air_date || null, 
                 posterUrl: apiShow.poster_path ? image + apiShow.poster_path : null,
-                trailerUrl: trailer ? video + trailer : null,
+                trailerUrl: trailer ? trailer : null,
                 id: apiShow.id
             })
 

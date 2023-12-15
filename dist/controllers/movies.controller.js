@@ -77,7 +77,7 @@ const getMovieById = (req, res, next) => __awaiter(void 0, void 0, void 0, funct
                 language: apiMovie.original_language,
                 date: apiMovie.release_date || null,
                 posterUrl: apiMovie.poster_path ? url_api_1.image + apiMovie.poster_path : null,
-                trailerUrl: trailer ? url_api_1.video + trailer : null,
+                trailerUrl: trailer ? trailer : null,
                 id: apiMovie.id
             });
             for (const movieGenre of apiMovie.genres) {

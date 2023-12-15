@@ -72,7 +72,7 @@ export const getMovieById = async (req: Request, res: Response, next: NextFuncti
                 language: apiMovie.original_language,
                 date: apiMovie.release_date || null, 
                 posterUrl: apiMovie.poster_path ? image + apiMovie.poster_path : null,
-                trailerUrl: trailer ? video + trailer : null,
+                trailerUrl: trailer ? trailer : null,
                 id: apiMovie.id
             })
 

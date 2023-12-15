@@ -78,7 +78,7 @@ const getShowById = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
                 language: apiShow.original_language,
                 date: apiShow.first_air_date || null,
                 posterUrl: apiShow.poster_path ? url_api_1.image + apiShow.poster_path : null,
-                trailerUrl: trailer ? url_api_1.video + trailer : null,
+                trailerUrl: trailer ? trailer : null,
                 id: apiShow.id
             });
             for (const showGenre of apiShow.genres) {
