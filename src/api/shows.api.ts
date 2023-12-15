@@ -6,7 +6,7 @@ const key = <string> process.env.API_KEY
 const headers = { 'Content-Type': 'application/json' }
 
 
-export const findShows = async (query: string, page: string) => {
+export const searchShows = async (query: string, page: string) => {
     const url = api + '/search/tv'
     const request = await getRequest(url, headers, {
         api_key: key, 
@@ -17,7 +17,18 @@ export const findShows = async (query: string, page: string) => {
     return request
 }
 
-export const getShowYTKey = async (id: string) => {
+export const discoverShows = async (entry: any, page: string) => {
+    const params: any = { api_key: key, page }
+    if (entry.genre) 
+        params.with_genres = entry.genre
+    if (entry.year)
+        params.year = entry.year
+    const url = api + '/discover/tv'
+    const request = await getRequest(url, headers, params)
+    return request
+}
+
+export const findShowYTKey = async (id: string) => {
     const url = api + `/tv/${id}/videos`
     const request = await getRequest(url, headers, {
         api_key: key
@@ -28,7 +39,7 @@ export const getShowYTKey = async (id: string) => {
     return request.results[0].key
 }
 
-export const getShowDetails = async (id: string) => {
+export const findShowDetails = async (id: string) => {
     const url = api + `/tv/${id}`
 
     const request = await getRequest(url, headers, {

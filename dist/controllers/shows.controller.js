@@ -21,11 +21,18 @@ const validation_util_1 = require("../utils/validation.util");
 const filter_util_1 = require("../utils/filter.util");
 const getAllShows = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
+        let request;
         let { search, page, year, genre, order } = req.query;
         if (!page)
             page = '1';
         // find shows in external api
-        const request = yield (0, shows_api_1.findShows)(search, page);
+        if (genre)
+            genre = yield (0, genres_service_1.selectGenreApiIdByPk)(genre);
+        // find movies in external api
+        if (search)
+            request = yield (0, shows_api_1.searchShows)(search, page);
+        else
+            request = yield (0, shows_api_1.discoverShows)({ genre, year }, page);
         const apiShows = request.results;
         let response = [];
         // each page brings 20 entries
@@ -34,7 +41,7 @@ const getAllShows = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
             // verify if show exists in database
             let show = yield (0, media_service_1.selectMediaByApiId)(apiShow.id);
             if (!show) {
-                const trailer = yield (0, shows_api_1.getShowYTKey)(apiShow.id);
+                const trailer = yield (0, shows_api_1.findShowYTKey)(apiShow.id);
                 // if it aint, save it
                 show = yield (0, media_service_1.insertMedia)({
                     isTv: true,
@@ -47,7 +54,7 @@ const getAllShows = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
                     trailerUrl: url_api_1.video + trailer,
                     apiId: apiShow.id
                 });
-                const details = yield (0, shows_api_1.getShowDetails)(apiShow.id);
+                const details = yield (0, shows_api_1.findShowDetails)(apiShow.id);
                 for (const apiGenre of details.genres) {
                     let genre = yield (0, genres_service_1.selectGenreByApiId)(apiGenre.id);
                     if (!genre)
@@ -64,9 +71,9 @@ const getAllShows = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
             }
             response.push(Object.assign(Object.assign({}, show), { publicRatings: yield (0, ratings_service_1.selectPublicRatings)(show.id), criticRatings: yield (0, ratings_service_1.selectCriticRatings)(show.id), publicScore: yield (0, ratings_service_1.selectPublicScore)(show.id), criticScore: yield (0, ratings_service_1.selectCriticScore)(show.id), genres: yield (0, mediaGenre_service_1.selectMediaGenres)(show.id) }));
         }
-        if (year)
+        if (year && search)
             response = (0, filter_util_1.filterMediaByYear)(response, year);
-        if (genre)
+        if (genre && search)
             response = (0, filter_util_1.filterMediaByGenre)(response, genre);
         if (order)
             response = (0, filter_util_1.orderMedia)(response, order);

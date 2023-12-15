@@ -22,11 +22,17 @@ const filter_util_1 = require("../utils/filter.util");
 // each page contains 20 entries
 const getAllMovies = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
+        let request;
         let { search, page, genre, order, year } = req.query;
         if (!page)
             page = '1';
+        if (genre)
+            genre = yield (0, genres_service_1.selectGenreApiIdByPk)(genre);
         // find movies in external api
-        const request = yield (0, movies_api_1.findMovies)(search, page);
+        if (search)
+            request = yield (0, movies_api_1.searchMovies)(search, page);
+        else
+            request = yield (0, movies_api_1.discoverMovies)({ genre, year }, page);
         const apiMovies = request.results;
         let response = [];
         // each page brings 20 entries
@@ -35,7 +41,7 @@ const getAllMovies = (req, res, next) => __awaiter(void 0, void 0, void 0, funct
             // verify if movie exists in database
             let movie = yield (0, media_service_1.selectMediaByApiId)(apiMovie.id);
             if (!movie) {
-                const trailer = yield (0, movies_api_1.getMovieYTKey)(apiMovie.id);
+                const trailer = yield (0, movies_api_1.findMovieYTKey)(apiMovie.id);
                 // if it aint, save it
                 movie = yield (0, media_service_1.insertMedia)({
                     isTv: false,
@@ -48,7 +54,7 @@ const getAllMovies = (req, res, next) => __awaiter(void 0, void 0, void 0, funct
                     trailerUrl: url_api_1.video + trailer,
                     apiId: apiMovie.id
                 });
-                const details = yield (0, movies_api_1.getMovieDetails)(apiMovie.id);
+                const details = yield (0, movies_api_1.findMovieDetails)(apiMovie.id);
                 for (const apiGenre of details.genres) {
                     let genre = yield (0, genres_service_1.selectGenreByApiId)(apiGenre.id);
                     if (!genre)
@@ -65,9 +71,9 @@ const getAllMovies = (req, res, next) => __awaiter(void 0, void 0, void 0, funct
             }
             response.push(Object.assign(Object.assign({}, movie), { publicRatings: yield (0, ratings_service_1.selectPublicRatings)(movie.id), criticRatings: yield (0, ratings_service_1.selectCriticRatings)(movie.id), publicScore: yield (0, ratings_service_1.selectPublicScore)(movie.id), criticScore: yield (0, ratings_service_1.selectCriticScore)(movie.id), genres: yield (0, mediaGenre_service_1.selectMediaGenres)(movie.id) }));
         }
-        if (year)
+        if (year && search)
             response = (0, filter_util_1.filterMediaByYear)(response, year);
-        if (genre)
+        if (genre && search)
             response = (0, filter_util_1.filterMediaByGenre)(response, genre);
         if (order)
             response = (0, filter_util_1.orderMedia)(response, order);

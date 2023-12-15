@@ -1,10 +1,10 @@
 import { Request, Response, NextFunction } from "express"
 import { selectReviewsByMedia } from "../services/reviews.service"
-import { findShows, getShowDetails, getShowYTKey } from "../api/shows.api"
+import { searchShows, findShowDetails, findShowYTKey, discoverShows } from "../api/shows.api"
 import { insertMedia, selectMediaByApiId, selectMediaByPk } from "../services/media.service"
 import { selectCriticRatings, selectCriticScore, selectPublicRatings, selectPublicScore, selectRatingByPk } from "../services/ratings.service"
 import { image, video } from "../api/url.api"
-import { insertGenre, selectGenreByApiId } from "../services/genres.service"
+import { insertGenre, selectGenreApiIdByPk, selectGenreByApiId } from "../services/genres.service"
 import { insertMediaGenre, selectMediaGenres } from "../services/mediaGenre.service"
 import { mediaExists } from "../utils/validation.util"
 import { filterMediaByGenre, filterMediaByYear, orderMedia } from "../utils/filter.util"
@@ -12,11 +12,21 @@ import { AuthRequest } from "../types/auth.type"
 
 export const getAllShows = async (req: Request, res: Response, next: NextFunction) => {
     try {
+        let request
         let { search, page, year, genre, order } = req.query
         if (!page) page = '1'
 
         // find shows in external api
-        const request = await findShows(<string> search, <string> page)
+        if (genre)
+            genre = await selectGenreApiIdByPk(<string> genre)
+
+        // find movies in external api
+        if (search)
+            request = await searchShows(<string> search, <string> page)
+        else
+            request = await discoverShows({genre, year}, <string> page)
+
+
         const apiShows = request.results
         let response = []
 
@@ -26,7 +36,7 @@ export const getAllShows = async (req: Request, res: Response, next: NextFunctio
             // verify if show exists in database
             let show = await selectMediaByApiId(apiShow.id)
             if (!show) {
-                const trailer = await getShowYTKey(apiShow.id)
+                const trailer = await findShowYTKey(apiShow.id)
 
                 // if it aint, save it
                 show = await insertMedia({
@@ -41,7 +51,7 @@ export const getAllShows = async (req: Request, res: Response, next: NextFunctio
                     apiId: apiShow.id
                 })
                 
-                const details = await getShowDetails(apiShow.id)
+                const details = await findShowDetails(apiShow.id)
                 for (const apiGenre of details.genres) {
                     let genre = await selectGenreByApiId(apiGenre.id)
                     if (!genre)
@@ -68,10 +78,10 @@ export const getAllShows = async (req: Request, res: Response, next: NextFunctio
             })
         }
 
-        if (year)
+        if (year && search)
             response = filterMediaByYear(response, <string> year)
 
-        if (genre)
+        if (genre && search)
             response = filterMediaByGenre(response, <string> genre)
     
         if (order)

@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.selectGenreByApiId = exports.selectGenreByPk = exports.insertGenre = exports.selectAllGenres = void 0;
+exports.selectGenreApiIdByPk = exports.selectGenreByApiId = exports.selectGenreByPk = exports.insertGenre = exports.selectAllGenres = void 0;
 const genres_query_1 = __importDefault(require("../queries/genres.query"));
 const database_1 = __importDefault(require("../config/database"));
 const selectAllGenres = () => __awaiter(void 0, void 0, void 0, function* () {
@@ -59,3 +59,11 @@ const selectGenreByApiId = (apiId) => __awaiter(void 0, void 0, void 0, function
     };
 });
 exports.selectGenreByApiId = selectGenreByApiId;
+const selectGenreApiIdByPk = (id) => __awaiter(void 0, void 0, void 0, function* () {
+    const sentence = genres_query_1.default.select.by.pk;
+    const genre = yield database_1.default.query(sentence, [id]);
+    if (!genre.rows[0])
+        return;
+    return genre.rows[0].genre_api_id;
+});
+exports.selectGenreApiIdByPk = selectGenreApiIdByPk;

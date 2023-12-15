@@ -9,13 +9,13 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getMovieDetails = exports.getMovieYTKey = exports.findMovies = void 0;
+exports.findMovieDetails = exports.findMovieYTKey = exports.discoverMovies = exports.searchMovies = void 0;
 require("dotenv/config");
 const axios_util_1 = require("../utils/axios.util");
 const api = 'https://api.themoviedb.org/3';
 const key = process.env.API_KEY;
 const headers = { 'Content-Type': 'application/json' };
-const findMovies = (query, page) => __awaiter(void 0, void 0, void 0, function* () {
+const searchMovies = (query, page) => __awaiter(void 0, void 0, void 0, function* () {
     const url = api + '/search/movie';
     const request = yield (0, axios_util_1.getRequest)(url, headers, {
         api_key: key,
@@ -24,8 +24,19 @@ const findMovies = (query, page) => __awaiter(void 0, void 0, void 0, function* 
     });
     return request;
 });
-exports.findMovies = findMovies;
-const getMovieYTKey = (id) => __awaiter(void 0, void 0, void 0, function* () {
+exports.searchMovies = searchMovies;
+const discoverMovies = (entry, page) => __awaiter(void 0, void 0, void 0, function* () {
+    const params = { api_key: key, page };
+    if (entry.genre)
+        params.with_genres = entry.genre;
+    if (entry.year)
+        params.year = entry.year;
+    const url = api + '/discover/movie';
+    const request = yield (0, axios_util_1.getRequest)(url, headers, params);
+    return request;
+});
+exports.discoverMovies = discoverMovies;
+const findMovieYTKey = (id) => __awaiter(void 0, void 0, void 0, function* () {
     const url = api + `/movie/${id}/videos`;
     const request = yield (0, axios_util_1.getRequest)(url, headers, {
         api_key: key
@@ -34,12 +45,12 @@ const getMovieYTKey = (id) => __awaiter(void 0, void 0, void 0, function* () {
         return null;
     return request.results[0].key;
 });
-exports.getMovieYTKey = getMovieYTKey;
-const getMovieDetails = (id) => __awaiter(void 0, void 0, void 0, function* () {
+exports.findMovieYTKey = findMovieYTKey;
+const findMovieDetails = (id) => __awaiter(void 0, void 0, void 0, function* () {
     const url = api + `/movie/${id}`;
     const request = yield (0, axios_util_1.getRequest)(url, headers, {
         api_key: key
     });
     return request;
 });
-exports.getMovieDetails = getMovieDetails;
+exports.findMovieDetails = findMovieDetails;

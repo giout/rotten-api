@@ -48,3 +48,12 @@ export const selectGenreByApiId = async (apiId: string) => {
         title: genre.rows[0].genre_title
     }
 }
+
+export const selectGenreApiIdByPk = async (id: string) => {
+    const sentence = queries.select.by.pk
+    const genre = await pool.query(sentence, [id])
+    if (!genre.rows[0])
+        return 
+
+    return genre.rows[0].genre_api_id
+}

@@ -5,7 +5,7 @@ const api = 'https://api.themoviedb.org/3'
 const key = <string> process.env.API_KEY
 const headers = { 'Content-Type': 'application/json' }
 
-export const findMovies = async (query: string, page: string) => {
+export const searchMovies = async (query: string, page: string) => {
     const url = api + '/search/movie'
     const request = await getRequest(url, headers, {
         api_key: key, 
@@ -16,7 +16,18 @@ export const findMovies = async (query: string, page: string) => {
     return request
 }
 
-export const getMovieYTKey = async (id: string) => {
+export const discoverMovies = async (entry: any, page: string) => {
+    const params: any = { api_key: key, page }
+    if (entry.genre) 
+        params.with_genres = entry.genre
+    if (entry.year)
+        params.year = entry.year
+    const url = api + '/discover/movie'
+    const request = await getRequest(url, headers, params)
+    return request
+}
+
+export const findMovieYTKey = async (id: string) => {
     const url = api + `/movie/${id}/videos`
     const request = await getRequest(url, headers, {
         api_key: key
@@ -27,7 +38,7 @@ export const getMovieYTKey = async (id: string) => {
     return request.results[0].key
 }
 
-export const getMovieDetails = async (id: string) => {
+export const findMovieDetails = async (id: string) => {
     const url = api + `/movie/${id}`
 
     const request = await getRequest(url, headers, {
