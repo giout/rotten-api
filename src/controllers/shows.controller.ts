@@ -1,89 +1,46 @@
 import { Request, Response, NextFunction } from "express"
+import { discoverShows, findShowDetails, findShowYTKey, searchShows } from "../api/shows.api"
+import { insertMedia, selectMediaByPk } from "../services/media.service"
+import { selectRatingByPk, selectRatingsCriticAvgAndCount, selectRatingsPublicAvgAndCount } from "../services/ratings.service"
 import { selectReviewsByMedia } from "../services/reviews.service"
-import { searchShows, findShowDetails, findShowYTKey, discoverShows } from "../api/shows.api"
-import { insertMedia, selectMediaByApiId, selectMediaByPk } from "../services/media.service"
-import { selectCriticRatings, selectCriticScore, selectPublicRatings, selectPublicScore, selectRatingByPk } from "../services/ratings.service"
+import { insertGenre, selectGenreByPk } from "../services/genres.service"
 import { image, video } from "../api/url.api"
-import { insertGenre, selectGenreApiIdByPk, selectGenreByApiId } from "../services/genres.service"
 import { insertMediaGenre, selectMediaGenres } from "../services/mediaGenre.service"
 import { mediaExists } from "../utils/validation.util"
-import { filterMediaByGenre, filterMediaByYear, orderMedia } from "../utils/filter.util"
+import { orderMedia } from "../utils/order.util"
 import { AuthRequest } from "../types/auth.type"
 
+// each page contains 20 entries
 export const getAllShows = async (req: Request, res: Response, next: NextFunction) => {
     try {
         let request
-        let { search, page, year, genre, order } = req.query
+        let { search, page, genre, order, year } = req.query
         if (!page) page = '1'
 
         // find shows in external api
-        if (genre)
-            genre = await selectGenreApiIdByPk(<string> genre)
-
-        // find movies in external api
         if (search)
             request = await searchShows(<string> search, <string> page)
         else
-            request = await discoverShows({genre, year}, <string> page)
+            request = await discoverShows({genre}, <string> page)
 
-
-        const apiShows = request.results
+        const apishows = request.results
         let response = []
 
         // each page brings 20 entries
         // in current page, iterate over every entry
-        for (const apiShow of apiShows) {
-            // verify if show exists in database
-            let show = await selectMediaByApiId(apiShow.id)
-            if (!show) {
-                const trailer = await findShowYTKey(apiShow.id)
-
-                // if it aint, save it
-                show = await insertMedia({
-                    isTv: true,
-                    title: apiShow.original_name,
-                    overview: apiShow.overview,
-                    adult: apiShow.adult,
-                    language: apiShow.original_language,
-                    date: apiShow.first_air_date || null, 
-                    posterUrl: image + apiShow.poster_path,
-                    trailerUrl: video + trailer,
-                    apiId: apiShow.id
-                })
-                
-                const details = await findShowDetails(apiShow.id)
-                for (const apiGenre of details.genres) {
-                    let genre = await selectGenreByApiId(apiGenre.id)
-                    if (!genre)
-                        genre = await insertGenre({
-                            apiId: apiGenre.id,
-                            title: apiGenre.name
-                        })
-
-                    // add genre to show
-                    await insertMediaGenre({ 
-                        mediaId: show.id, 
-                        genreId: genre.id
-                    })
-                }
-            }
-            
+        for (const apishow of apishows) {
             response.push({
-                ...show,
-                publicRatings: await selectPublicRatings(show.id) ,
-                criticRatings: await selectCriticRatings(show.id),
-                publicScore: await selectPublicScore(show.id),
-                criticScore: await selectCriticScore(show.id),
-                genres: await selectMediaGenres(show.id)
+                isTv: false,
+                title: apishow.name,
+                overview: apishow.overview,
+                adult: apishow.adult,
+                language: apishow.original_language,
+                date: apishow.first_air_date || null, 
+                posterUrl: image + apishow.poster_path,
+                id: apishow.id
             })
         }
-
-        if (year && search)
-            response = filterMediaByYear(response, <string> year)
-
-        if (genre && search)
-            response = filterMediaByGenre(response, <string> genre)
-    
+        
         if (order)
             response = orderMedia(response, <string> order)
         
@@ -100,33 +57,70 @@ export const getAllShows = async (req: Request, res: Response, next: NextFunctio
 export const getShowById = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { id } = req.params
-        // select show in db
-        const show = await mediaExists(id)
-        // rating by the auth user
+        console.log(id)
+        // verify if show exists in db
+        let show: any = await selectMediaByPk(id)
+        if (!show) {
+            // search show in external api
+            const apiShow = await findShowDetails(<string>id)
+            const trailer = await findShowYTKey(apiShow.id)
+            // store data
+            show = await insertMedia({
+                isTv: false,
+                title: apiShow.name,
+                overview: apiShow.overview,
+                adult: apiShow.adult,
+                language: apiShow.original_language,
+                date: apiShow.first_air_date || null, 
+                posterUrl: image + apiShow.poster_path,
+                trailerUrl: video + trailer,
+                id: apiShow.id
+            })
+
+            for (const showGenre of apiShow.genres) {
+                let genre = await selectGenreByPk(showGenre.id)
+                if (!genre) 
+                    genre = await insertGenre({
+                        id: showGenre.id,
+                        title: showGenre.name
+                    })
+
+                // add genre to show
+                await insertMediaGenre({ 
+                    mediaId: apiShow.id, 
+                    genreId: genre.id
+                })
+            }
+        }
+
+        // rate by the auth user
         const { user } = (req as AuthRequest)
         const rating = await selectRatingByPk({ 
             userId: user.id, 
-            mediaId: show.id 
+            mediaId: show?.id 
         })            
         let score = 0
         if (rating)
             score = parseFloat(rating.score)
 
+        const criticStats = await selectRatingsCriticAvgAndCount(show.id)
+        const publicStats = await selectRatingsPublicAvgAndCount(show.id)
 
         const response = {
             ...show,
-            publicRatings: await selectPublicRatings(show.id) ,
-            criticRatings: await selectCriticRatings(show.id),
-            publicScore: await selectPublicScore(show.id),
-            criticScore: await selectCriticScore(show.id),
+            publicRatings: publicStats.ratings,
+            criticRatings: criticStats.ratings,
+            publicScore: publicStats.score,
+            criticScore: criticStats.score,
             genres: await selectMediaGenres(show.id),
             userRate: score
         }
-
+        
         res.status(200).json({
             code: 200,
             data: response
         })
+        
     } catch(e) {
         next(e)
     }
@@ -145,5 +139,9 @@ export const getShowReviews = async (req: Request, res: Response, next: NextFunc
     } catch(e) {
         next(e)
     }
+}
+
+function searchshows(arg0: string, arg1: string): any {
+    throw new Error("Function not implemented.")
 }
 

@@ -22,7 +22,7 @@ export const discoverShows = async (entry: any, page: string) => {
     if (entry.genre) 
         params.with_genres = entry.genre
     if (entry.year)
-        params.year = entry.year
+        params.first_air_date_year = entry.year
     const url = api + '/discover/tv'
     const request = await getRequest(url, headers, params)
     return request

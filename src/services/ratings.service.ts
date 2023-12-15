@@ -31,36 +31,22 @@ export const deleteRating = async (entry: any) => {
     await pool.query(sentence, [entry.userId, entry.mediaId])
 }
 
-export const selectPublicRatings = async (mediaId: string) => {
-    const sentence = queries.select.count.publicRatings
+export const selectRatingsPublicAvgAndCount = async (mediaId: string) => {
+    const sentence = queries.select.avgAndCount.public
     const ratings = await pool.query(sentence, [mediaId])
-    return parseInt(ratings.rows[0].count) 
+    return {
+        score: parseFloat(ratings.rows[0].avg) || 0,
+        ratings: parseInt(ratings.rows[0].count)
+    }
 }   
 
-export const selectCriticRatings = async (mediaId: string) => {
-    const sentence = queries.select.count.criticRatings
+export const selectRatingsCriticAvgAndCount = async (mediaId: string) => {
+    const sentence = queries.select.avgAndCount.critic
     const ratings = await pool.query(sentence, [mediaId])
-    return parseInt(ratings.rows[0].count)
-}
-
-export const selectPublicScore = async (mediaId: string) => {
-    const sentence = queries.select.average.publicScore
-    const ratings = await pool.query(sentence, [mediaId])
-
-    if (!ratings.rows[0].avg)
-        return 0
-
-    return parseFloat(ratings.rows[0].avg)
-}
-
-export const selectCriticScore = async (mediaId: string) => {
-    const sentence = queries.select.average.criticScore
-    const ratings = await pool.query(sentence, [mediaId])
-    
-    if (!ratings.rows[0].avg)
-        return 0
-     
-    return parseFloat(ratings.rows[0].avg)
+    return {
+                score: parseFloat(ratings.rows[0].avg) || 0,
+        ratings: parseInt(ratings.rows[0].count)
+    }
 }
 
 export const selectRatingsByUser = async (userId: string) => {

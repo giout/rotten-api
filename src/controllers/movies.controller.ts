@@ -1,13 +1,13 @@
 import { Request, Response, NextFunction } from "express"
 import { searchMovies, findMovieDetails, findMovieYTKey, discoverMovies } from "../api/movies.api"
-import { insertMedia, selectMediaByApiId, selectMediaByPk } from "../services/media.service"
-import { selectCriticRatings, selectCriticScore, selectPublicRatings, selectPublicScore, selectRatingByPk } from "../services/ratings.service"
+import { insertMedia, selectMediaByPk } from "../services/media.service"
+import { selectRatingByPk, selectRatingsCriticAvgAndCount, selectRatingsPublicAvgAndCount } from "../services/ratings.service"
 import { selectReviewsByMedia } from "../services/reviews.service"
-import { insertGenre, selectGenreApiIdByPk, selectGenreByApiId } from "../services/genres.service"
+import { insertGenre, selectGenreByPk } from "../services/genres.service"
 import { image, video } from "../api/url.api"
 import { insertMediaGenre, selectMediaGenres } from "../services/mediaGenre.service"
 import { mediaExists } from "../utils/validation.util"
-import { filterMediaByGenre, filterMediaByYear, orderMedia } from "../utils/filter.util"
+import { orderMedia } from "../utils/order.util"
 import { AuthRequest } from "../types/auth.type"
 
 // each page contains 20 entries
@@ -16,9 +16,6 @@ export const getAllMovies = async (req: Request, res: Response, next: NextFuncti
         let request
         let { search, page, genre, order, year } = req.query
         if (!page) page = '1'
-
-        if (genre)
-            genre = await selectGenreApiIdByPk(<string> genre)
 
         // find movies in external api
         if (search)
@@ -29,63 +26,20 @@ export const getAllMovies = async (req: Request, res: Response, next: NextFuncti
         const apiMovies = request.results
         let response = []
 
-        var i = 0 
         // each page brings 20 entries
         // in current page, iterate over every entry
         for (const apiMovie of apiMovies) {
-            // verify if movie exists in database
-            let movie = await selectMediaByApiId(apiMovie.id)
-            if (!movie) {
-                console.log('doesnt exists')
-                const trailer = await findMovieYTKey(apiMovie.id)
-
-                // if it aint, save it
-
-                movie = await insertMedia({
-                    isTv: false,
-                    title: apiMovie.original_title,
-                    overview: apiMovie.overview,
-                    adult: apiMovie.adult,
-                    language: apiMovie.original_language,
-                    date: apiMovie.release_date || null, 
-                    posterUrl: image + apiMovie.poster_path,
-                    trailerUrl: video + trailer,
-                    apiId: apiMovie.id
-                })
-
-                const details = await findMovieDetails(apiMovie.id)
-                for (const apiGenre of details.genres) {
-    
-                    let genre = await selectGenreByApiId(apiGenre.id)
-                    if (!genre)
-                        genre = await insertGenre({
-                            apiId: apiGenre.id,
-                            title: apiGenre.name
-                        })
-
-                    // add genre to movie
-    
-                    await insertMediaGenre({ 
-                        mediaId: movie.id, 
-                        genreId: genre.id
-                    })
-                }
-            }
             response.push({
-                ...movie,
-                publicRatings: await selectPublicRatings(movie.id) ,
-                criticRatings: await selectCriticRatings(movie.id),
-                publicScore: await selectPublicScore(movie.id),
-                criticScore: await selectCriticScore(movie.id),
-                genres: await selectMediaGenres(movie.id)
+                isTv: false,
+                title: apiMovie.original_title,
+                overview: apiMovie.overview,
+                adult: apiMovie.adult,
+                language: apiMovie.original_language,
+                date: apiMovie.release_date || null, 
+                posterUrl: image + apiMovie.poster_path,
+                id: apiMovie.id
             })
         }
-
-        if (year && search)
-            response = filterMediaByYear(response, <string> year)
-
-        if (genre && search)
-            response = filterMediaByGenre(response, <string> genre)
         
         if (order)
             response = orderMedia(response, <string> order)
@@ -103,25 +57,60 @@ export const getAllMovies = async (req: Request, res: Response, next: NextFuncti
 export const getMovieById = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { id } = req.params
-        // select movie in db
-        const movie = await mediaExists(id)
+        // verify if movie exists in db
+        let movie: any = await selectMediaByPk(id)
+        if (!movie) {
+            // search movie in external api
+            const apiMovie = await findMovieDetails(<string>id)
+            const trailer = await findMovieYTKey(apiMovie.id)
+            // store data
+            movie = await insertMedia({
+                isTv: false,
+                title: apiMovie.original_title,
+                overview: apiMovie.overview,
+                adult: apiMovie.adult,
+                language: apiMovie.original_language,
+                date: apiMovie.release_date || null, 
+                posterUrl: image + apiMovie.poster_path,
+                trailerUrl: video + trailer,
+                id: apiMovie.id
+            })
 
-        // rating by the auth user
+            for (const movieGenre of apiMovie.genres) {
+                let genre = await selectGenreByPk(movieGenre.id)
+                if (!genre)
+                    genre = await insertGenre({
+                        id: movieGenre.id,
+                        title: movieGenre.name
+                    })
+
+                // add genre to movie
+                await insertMediaGenre({ 
+                    mediaId: apiMovie.id, 
+                    genreId: genre.id
+                })
+            }
+        }
+
+        // rate by the auth user
         const { user } = (req as AuthRequest)
         const rating = await selectRatingByPk({ 
             userId: user.id, 
-            mediaId: movie.id 
+            mediaId: movie?.id 
         })            
         let score = 0
         if (rating)
             score = parseFloat(rating.score)
 
+        const criticStats = await selectRatingsCriticAvgAndCount(movie.id)
+        const publicStats = await selectRatingsPublicAvgAndCount(movie.id)
+
         const response = {
             ...movie,
-            publicRatings: await selectPublicRatings(movie.id),
-            criticRatings: await selectCriticRatings(movie.id),
-            publicScore: await selectPublicScore(movie.id),
-            criticScore: await selectCriticScore(movie.id),
+            publicRatings: publicStats.ratings,
+            criticRatings: criticStats.ratings,
+            publicScore: publicStats.score,
+            criticScore: criticStats.score,
             genres: await selectMediaGenres(movie.id),
             userRate: score
         }

@@ -17,7 +17,7 @@ export const selectAllGenres = async () => {
 
 export const insertGenre = async (entry: any) => {
     const sentence = queries.insert
-    const genre = await pool.query(sentence, [entry.title, entry.apiId])
+    const genre = await pool.query(sentence, [entry.title, entry.id])
     return {
         id: genre.rows[0].genre_id,
         title: genre.rows[0].genre_title

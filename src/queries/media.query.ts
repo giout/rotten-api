@@ -8,7 +8,7 @@ const queries = {
         }
     },
 
-    insert: `INSERT INTO ${table} (is_tv, media_title, overview, adult, original_language, release_date, poster_url, trailer_url, media_api_id) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING *`
+    insert: `INSERT INTO ${table} (is_tv, media_title, overview, adult, original_language, release_date, poster_url, trailer_url, media_id) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING *`
 }
 
 export default queries

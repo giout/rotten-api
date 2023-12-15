@@ -1,21 +1,3 @@
-import { Genre } from "../types/genres.type"
-
-export const filterMediaByGenre = (list: any[], param: string) => {
-    // match word without case sensitivity
-    return list.filter(
-        // param = genre id
-        media => media.genres.some(
-            (genre: Genre) => genre.id === parseInt(param)
-        )
-    )
-}
-
-export const filterMediaByYear = (list: any[], param: string) => {
-    return list.filter(
-        media => new Date(media.date).getFullYear().toString() === param
-    )
-}
-
 export const orderMedia = (list: any[], param: string) => {    
     if (param === 'topscore')
     return list.sort(

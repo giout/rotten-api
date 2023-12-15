@@ -32,7 +32,7 @@ export const insertMedia = async (entry: any) => {
         entry.date,
         entry.posterUrl,
         entry.trailerUrl,
-        entry.apiId
+        entry.id
     ])
 
     return {
