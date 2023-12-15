@@ -23,21 +23,21 @@ export const getAllShows = async (req: Request, res: Response, next: NextFunctio
         else
             request = await discoverShows({genre}, <string> page)
 
-        const apishows = request.results
+        const apiShows = request.results
         let response = []
 
         // each page brings 20 entries
         // in current page, iterate over every entry
-        for (const apishow of apishows) {
+        for (const apiShow of apiShows) {
             response.push({
                 isTv: false,
-                title: apishow.name,
-                overview: apishow.overview,
-                adult: apishow.adult,
-                language: apishow.original_language,
-                date: apishow.first_air_date || null, 
-                posterUrl: image + apishow.poster_path,
-                id: apishow.id
+                title: apiShow.name,
+                overview: apiShow.overview,
+                adult: apiShow.adult,
+                language: apiShow.original_language,
+                date: apiShow.first_air_date || null, 
+                posterUrl:  apiShow.poster_path ? image + apiShow.poster_path : null,
+                id: apiShow.id
             })
         }
         
@@ -72,8 +72,8 @@ export const getShowById = async (req: Request, res: Response, next: NextFunctio
                 adult: apiShow.adult,
                 language: apiShow.original_language,
                 date: apiShow.first_air_date || null, 
-                posterUrl: image + apiShow.poster_path,
-                trailerUrl: video + trailer,
+                posterUrl: apiShow.poster_path ? image + apiShow.poster_path : null,
+                trailerUrl: trailer ? video + trailer : null,
                 id: apiShow.id
             })
 

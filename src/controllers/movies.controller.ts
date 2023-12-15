@@ -36,7 +36,7 @@ export const getAllMovies = async (req: Request, res: Response, next: NextFuncti
                 adult: apiMovie.adult,
                 language: apiMovie.original_language,
                 date: apiMovie.release_date || null, 
-                posterUrl: image + apiMovie.poster_path,
+                posterUrl: apiMovie.poster_path ? image + apiMovie.poster_path : null,
                 id: apiMovie.id
             })
         }
@@ -71,8 +71,8 @@ export const getMovieById = async (req: Request, res: Response, next: NextFuncti
                 adult: apiMovie.adult,
                 language: apiMovie.original_language,
                 date: apiMovie.release_date || null, 
-                posterUrl: image + apiMovie.poster_path,
-                trailerUrl: video + trailer,
+                posterUrl: apiMovie.poster_path ? image + apiMovie.poster_path : null,
+                trailerUrl: trailer ? video + trailer : null,
                 id: apiMovie.id
             })
 
