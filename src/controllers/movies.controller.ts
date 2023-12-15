@@ -29,15 +29,18 @@ export const getAllMovies = async (req: Request, res: Response, next: NextFuncti
         const apiMovies = request.results
         let response = []
 
+        var i = 0 
         // each page brings 20 entries
         // in current page, iterate over every entry
         for (const apiMovie of apiMovies) {
             // verify if movie exists in database
             let movie = await selectMediaByApiId(apiMovie.id)
             if (!movie) {
+                console.log('doesnt exists')
                 const trailer = await findMovieYTKey(apiMovie.id)
 
                 // if it aint, save it
+
                 movie = await insertMedia({
                     isTv: false,
                     title: apiMovie.original_title,
@@ -49,9 +52,10 @@ export const getAllMovies = async (req: Request, res: Response, next: NextFuncti
                     trailerUrl: video + trailer,
                     apiId: apiMovie.id
                 })
-                
+
                 const details = await findMovieDetails(apiMovie.id)
                 for (const apiGenre of details.genres) {
+    
                     let genre = await selectGenreByApiId(apiGenre.id)
                     if (!genre)
                         genre = await insertGenre({
@@ -60,13 +64,13 @@ export const getAllMovies = async (req: Request, res: Response, next: NextFuncti
                         })
 
                     // add genre to movie
+    
                     await insertMediaGenre({ 
                         mediaId: movie.id, 
                         genreId: genre.id
                     })
                 }
             }
-            
             response.push({
                 ...movie,
                 publicRatings: await selectPublicRatings(movie.id) ,
@@ -90,6 +94,7 @@ export const getAllMovies = async (req: Request, res: Response, next: NextFuncti
             code: 200,
             data: response
         })
+
     } catch(e) {
         next(e)
     }
