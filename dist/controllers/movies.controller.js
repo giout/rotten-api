@@ -43,7 +43,7 @@ const getAllMovies = (req, res, next) => __awaiter(void 0, void 0, void 0, funct
                 adult: apiMovie.adult,
                 language: apiMovie.original_language,
                 date: apiMovie.release_date || null,
-                posterUrl: url_api_1.image + apiMovie.poster_path,
+                posterUrl: apiMovie.poster_path ? url_api_1.image + apiMovie.poster_path : null,
                 id: apiMovie.id
             });
         }
@@ -76,8 +76,8 @@ const getMovieById = (req, res, next) => __awaiter(void 0, void 0, void 0, funct
                 adult: apiMovie.adult,
                 language: apiMovie.original_language,
                 date: apiMovie.release_date || null,
-                posterUrl: url_api_1.image + apiMovie.poster_path,
-                trailerUrl: url_api_1.video + trailer,
+                posterUrl: apiMovie.poster_path ? url_api_1.image + apiMovie.poster_path : null,
+                trailerUrl: trailer ? url_api_1.video + trailer : null,
                 id: apiMovie.id
             });
             for (const movieGenre of apiMovie.genres) {

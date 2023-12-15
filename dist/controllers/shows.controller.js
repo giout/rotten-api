@@ -31,20 +31,20 @@ const getAllShows = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
             request = yield (0, shows_api_1.searchShows)(search, page);
         else
             request = yield (0, shows_api_1.discoverShows)({ genre }, page);
-        const apishows = request.results;
+        const apiShows = request.results;
         let response = [];
         // each page brings 20 entries
         // in current page, iterate over every entry
-        for (const apishow of apishows) {
+        for (const apiShow of apiShows) {
             response.push({
                 isTv: false,
-                title: apishow.name,
-                overview: apishow.overview,
-                adult: apishow.adult,
-                language: apishow.original_language,
-                date: apishow.first_air_date || null,
-                posterUrl: url_api_1.image + apishow.poster_path,
-                id: apishow.id
+                title: apiShow.name,
+                overview: apiShow.overview,
+                adult: apiShow.adult,
+                language: apiShow.original_language,
+                date: apiShow.first_air_date || null,
+                posterUrl: apiShow.poster_path ? url_api_1.image + apiShow.poster_path : null,
+                id: apiShow.id
             });
         }
         if (order)
@@ -77,8 +77,8 @@ const getShowById = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
                 adult: apiShow.adult,
                 language: apiShow.original_language,
                 date: apiShow.first_air_date || null,
-                posterUrl: url_api_1.image + apiShow.poster_path,
-                trailerUrl: url_api_1.video + trailer,
+                posterUrl: apiShow.poster_path ? url_api_1.image + apiShow.poster_path : null,
+                trailerUrl: trailer ? url_api_1.video + trailer : null,
                 id: apiShow.id
             });
             for (const showGenre of apiShow.genres) {
