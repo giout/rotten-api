@@ -18,7 +18,7 @@ const genres_service_1 = require("../services/genres.service");
 const url_api_1 = require("../api/url.api");
 const mediaGenre_service_1 = require("../services/mediaGenre.service");
 const validation_util_1 = require("../utils/validation.util");
-const filter_util_1 = require("../utils/filter.util");
+const order_util_1 = require("../utils/order.util");
 // each page contains 20 entries
 const getAllMovies = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -26,8 +26,6 @@ const getAllMovies = (req, res, next) => __awaiter(void 0, void 0, void 0, funct
         let { search, page, genre, order, year } = req.query;
         if (!page)
             page = '1';
-        if (genre)
-            genre = yield (0, genres_service_1.selectGenreApiIdByPk)(genre);
         // find movies in external api
         if (search)
             request = yield (0, movies_api_1.searchMovies)(search, page);
@@ -38,45 +36,19 @@ const getAllMovies = (req, res, next) => __awaiter(void 0, void 0, void 0, funct
         // each page brings 20 entries
         // in current page, iterate over every entry
         for (const apiMovie of apiMovies) {
-            // verify if movie exists in database
-            let movie = yield (0, media_service_1.selectMediaByApiId)(apiMovie.id);
-            if (!movie) {
-                const trailer = yield (0, movies_api_1.findMovieYTKey)(apiMovie.id);
-                // if it aint, save it
-                movie = yield (0, media_service_1.insertMedia)({
-                    isTv: false,
-                    title: apiMovie.original_title,
-                    overview: apiMovie.overview,
-                    adult: apiMovie.adult,
-                    language: apiMovie.original_language,
-                    date: apiMovie.release_date || null,
-                    posterUrl: url_api_1.image + apiMovie.poster_path,
-                    trailerUrl: url_api_1.video + trailer,
-                    apiId: apiMovie.id
-                });
-                const details = yield (0, movies_api_1.findMovieDetails)(apiMovie.id);
-                for (const apiGenre of details.genres) {
-                    let genre = yield (0, genres_service_1.selectGenreByApiId)(apiGenre.id);
-                    if (!genre)
-                        genre = yield (0, genres_service_1.insertGenre)({
-                            apiId: apiGenre.id,
-                            title: apiGenre.name
-                        });
-                    // add genre to movie
-                    yield (0, mediaGenre_service_1.insertMediaGenre)({
-                        mediaId: movie.id,
-                        genreId: genre.id
-                    });
-                }
-            }
-            response.push(Object.assign(Object.assign({}, movie), { publicRatings: yield (0, ratings_service_1.selectPublicRatings)(movie.id), criticRatings: yield (0, ratings_service_1.selectCriticRatings)(movie.id), publicScore: yield (0, ratings_service_1.selectPublicScore)(movie.id), criticScore: yield (0, ratings_service_1.selectCriticScore)(movie.id), genres: yield (0, mediaGenre_service_1.selectMediaGenres)(movie.id) }));
+            response.push({
+                isTv: false,
+                title: apiMovie.original_title,
+                overview: apiMovie.overview,
+                adult: apiMovie.adult,
+                language: apiMovie.original_language,
+                date: apiMovie.release_date || null,
+                posterUrl: url_api_1.image + apiMovie.poster_path,
+                id: apiMovie.id
+            });
         }
-        if (year && search)
-            response = (0, filter_util_1.filterMediaByYear)(response, year);
-        if (genre && search)
-            response = (0, filter_util_1.filterMediaByGenre)(response, genre);
         if (order)
-            response = (0, filter_util_1.orderMedia)(response, order);
+            response = (0, order_util_1.orderMedia)(response, order);
         res.status(200).json({
             code: 200,
             data: response
@@ -90,18 +62,50 @@ exports.getAllMovies = getAllMovies;
 const getMovieById = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { id } = req.params;
-        // select movie in db
-        const movie = yield (0, validation_util_1.mediaExists)(id);
-        // rating by the auth user
+        // verify if movie exists in db
+        let movie = yield (0, media_service_1.selectMediaByPk)(id);
+        if (!movie) {
+            // search movie in external api
+            const apiMovie = yield (0, movies_api_1.findMovieDetails)(id);
+            const trailer = yield (0, movies_api_1.findMovieYTKey)(apiMovie.id);
+            // store data
+            movie = yield (0, media_service_1.insertMedia)({
+                isTv: false,
+                title: apiMovie.original_title,
+                overview: apiMovie.overview,
+                adult: apiMovie.adult,
+                language: apiMovie.original_language,
+                date: apiMovie.release_date || null,
+                posterUrl: url_api_1.image + apiMovie.poster_path,
+                trailerUrl: url_api_1.video + trailer,
+                id: apiMovie.id
+            });
+            for (const movieGenre of apiMovie.genres) {
+                let genre = yield (0, genres_service_1.selectGenreByPk)(movieGenre.id);
+                if (!genre)
+                    genre = yield (0, genres_service_1.insertGenre)({
+                        id: movieGenre.id,
+                        title: movieGenre.name
+                    });
+                // add genre to movie
+                yield (0, mediaGenre_service_1.insertMediaGenre)({
+                    mediaId: apiMovie.id,
+                    genreId: genre.id
+                });
+            }
+        }
+        // rate by the auth user
         const { user } = req;
         const rating = yield (0, ratings_service_1.selectRatingByPk)({
             userId: user.id,
-            mediaId: movie.id
+            mediaId: movie === null || movie === void 0 ? void 0 : movie.id
         });
         let score = 0;
         if (rating)
             score = parseFloat(rating.score);
-        const response = Object.assign(Object.assign({}, movie), { publicRatings: yield (0, ratings_service_1.selectPublicRatings)(movie.id), criticRatings: yield (0, ratings_service_1.selectCriticRatings)(movie.id), publicScore: yield (0, ratings_service_1.selectPublicScore)(movie.id), criticScore: yield (0, ratings_service_1.selectCriticScore)(movie.id), genres: yield (0, mediaGenre_service_1.selectMediaGenres)(movie.id), userRate: score });
+        const criticStats = yield (0, ratings_service_1.selectRatingsCriticAvgAndCount)(movie.id);
+        const publicStats = yield (0, ratings_service_1.selectRatingsPublicAvgAndCount)(movie.id);
+        const response = Object.assign(Object.assign({}, movie), { publicRatings: publicStats.ratings, criticRatings: criticStats.ratings, publicScore: publicStats.score, criticScore: criticStats.score, genres: yield (0, mediaGenre_service_1.selectMediaGenres)(movie.id), userRate: score });
         res.status(200).json({
             code: 200,
             data: response

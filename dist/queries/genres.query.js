@@ -9,6 +9,6 @@ const queries = {
             apiId: `SELECT * FROM ${table} WHERE genre_api_id=$1`
         }
     },
-    insert: `INSERT INTO ${table} (genre_title, genre_api_id) VALUES ($1, $2) RETURNING *`
+    insert: `INSERT INTO ${table} (genre_title, genre_id) VALUES ($1, $2) RETURNING *`
 };
 exports.default = queries;

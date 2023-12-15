@@ -30,7 +30,7 @@ const selectAllGenres = () => __awaiter(void 0, void 0, void 0, function* () {
 exports.selectAllGenres = selectAllGenres;
 const insertGenre = (entry) => __awaiter(void 0, void 0, void 0, function* () {
     const sentence = genres_query_1.default.insert;
-    const genre = yield database_1.default.query(sentence, [entry.title, entry.apiId]);
+    const genre = yield database_1.default.query(sentence, [entry.title, entry.id]);
     return {
         id: genre.rows[0].genre_id,
         title: genre.rows[0].genre_title

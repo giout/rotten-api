@@ -10,73 +10,45 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getShowReviews = exports.getShowById = exports.getAllShows = void 0;
-const reviews_service_1 = require("../services/reviews.service");
 const shows_api_1 = require("../api/shows.api");
 const media_service_1 = require("../services/media.service");
 const ratings_service_1 = require("../services/ratings.service");
-const url_api_1 = require("../api/url.api");
+const reviews_service_1 = require("../services/reviews.service");
 const genres_service_1 = require("../services/genres.service");
+const url_api_1 = require("../api/url.api");
 const mediaGenre_service_1 = require("../services/mediaGenre.service");
 const validation_util_1 = require("../utils/validation.util");
-const filter_util_1 = require("../utils/filter.util");
+const order_util_1 = require("../utils/order.util");
+// each page contains 20 entries
 const getAllShows = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         let request;
-        let { search, page, year, genre, order } = req.query;
+        let { search, page, genre, order, year } = req.query;
         if (!page)
             page = '1';
         // find shows in external api
-        if (genre)
-            genre = yield (0, genres_service_1.selectGenreApiIdByPk)(genre);
-        // find movies in external api
         if (search)
             request = yield (0, shows_api_1.searchShows)(search, page);
         else
-            request = yield (0, shows_api_1.discoverShows)({ genre, year }, page);
-        const apiShows = request.results;
+            request = yield (0, shows_api_1.discoverShows)({ genre }, page);
+        const apishows = request.results;
         let response = [];
         // each page brings 20 entries
         // in current page, iterate over every entry
-        for (const apiShow of apiShows) {
-            // verify if show exists in database
-            let show = yield (0, media_service_1.selectMediaByApiId)(apiShow.id);
-            if (!show) {
-                const trailer = yield (0, shows_api_1.findShowYTKey)(apiShow.id);
-                // if it aint, save it
-                show = yield (0, media_service_1.insertMedia)({
-                    isTv: true,
-                    title: apiShow.original_name,
-                    overview: apiShow.overview,
-                    adult: apiShow.adult,
-                    language: apiShow.original_language,
-                    date: apiShow.first_air_date || null,
-                    posterUrl: url_api_1.image + apiShow.poster_path,
-                    trailerUrl: url_api_1.video + trailer,
-                    apiId: apiShow.id
-                });
-                const details = yield (0, shows_api_1.findShowDetails)(apiShow.id);
-                for (const apiGenre of details.genres) {
-                    let genre = yield (0, genres_service_1.selectGenreByApiId)(apiGenre.id);
-                    if (!genre)
-                        genre = yield (0, genres_service_1.insertGenre)({
-                            apiId: apiGenre.id,
-                            title: apiGenre.name
-                        });
-                    // add genre to show
-                    yield (0, mediaGenre_service_1.insertMediaGenre)({
-                        mediaId: show.id,
-                        genreId: genre.id
-                    });
-                }
-            }
-            response.push(Object.assign(Object.assign({}, show), { publicRatings: yield (0, ratings_service_1.selectPublicRatings)(show.id), criticRatings: yield (0, ratings_service_1.selectCriticRatings)(show.id), publicScore: yield (0, ratings_service_1.selectPublicScore)(show.id), criticScore: yield (0, ratings_service_1.selectCriticScore)(show.id), genres: yield (0, mediaGenre_service_1.selectMediaGenres)(show.id) }));
+        for (const apishow of apishows) {
+            response.push({
+                isTv: false,
+                title: apishow.name,
+                overview: apishow.overview,
+                adult: apishow.adult,
+                language: apishow.original_language,
+                date: apishow.first_air_date || null,
+                posterUrl: url_api_1.image + apishow.poster_path,
+                id: apishow.id
+            });
         }
-        if (year && search)
-            response = (0, filter_util_1.filterMediaByYear)(response, year);
-        if (genre && search)
-            response = (0, filter_util_1.filterMediaByGenre)(response, genre);
         if (order)
-            response = (0, filter_util_1.orderMedia)(response, order);
+            response = (0, order_util_1.orderMedia)(response, order);
         res.status(200).json({
             code: 200,
             data: response
@@ -90,18 +62,51 @@ exports.getAllShows = getAllShows;
 const getShowById = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { id } = req.params;
-        // select show in db
-        const show = yield (0, validation_util_1.mediaExists)(id);
-        // rating by the auth user
+        console.log(id);
+        // verify if show exists in db
+        let show = yield (0, media_service_1.selectMediaByPk)(id);
+        if (!show) {
+            // search show in external api
+            const apiShow = yield (0, shows_api_1.findShowDetails)(id);
+            const trailer = yield (0, shows_api_1.findShowYTKey)(apiShow.id);
+            // store data
+            show = yield (0, media_service_1.insertMedia)({
+                isTv: false,
+                title: apiShow.name,
+                overview: apiShow.overview,
+                adult: apiShow.adult,
+                language: apiShow.original_language,
+                date: apiShow.first_air_date || null,
+                posterUrl: url_api_1.image + apiShow.poster_path,
+                trailerUrl: url_api_1.video + trailer,
+                id: apiShow.id
+            });
+            for (const showGenre of apiShow.genres) {
+                let genre = yield (0, genres_service_1.selectGenreByPk)(showGenre.id);
+                if (!genre)
+                    genre = yield (0, genres_service_1.insertGenre)({
+                        id: showGenre.id,
+                        title: showGenre.name
+                    });
+                // add genre to show
+                yield (0, mediaGenre_service_1.insertMediaGenre)({
+                    mediaId: apiShow.id,
+                    genreId: genre.id
+                });
+            }
+        }
+        // rate by the auth user
         const { user } = req;
         const rating = yield (0, ratings_service_1.selectRatingByPk)({
             userId: user.id,
-            mediaId: show.id
+            mediaId: show === null || show === void 0 ? void 0 : show.id
         });
         let score = 0;
         if (rating)
             score = parseFloat(rating.score);
-        const response = Object.assign(Object.assign({}, show), { publicRatings: yield (0, ratings_service_1.selectPublicRatings)(show.id), criticRatings: yield (0, ratings_service_1.selectCriticRatings)(show.id), publicScore: yield (0, ratings_service_1.selectPublicScore)(show.id), criticScore: yield (0, ratings_service_1.selectCriticScore)(show.id), genres: yield (0, mediaGenre_service_1.selectMediaGenres)(show.id), userRate: score });
+        const criticStats = yield (0, ratings_service_1.selectRatingsCriticAvgAndCount)(show.id);
+        const publicStats = yield (0, ratings_service_1.selectRatingsPublicAvgAndCount)(show.id);
+        const response = Object.assign(Object.assign({}, show), { publicRatings: publicStats.ratings, criticRatings: criticStats.ratings, publicScore: publicStats.score, criticScore: criticStats.score, genres: yield (0, mediaGenre_service_1.selectMediaGenres)(show.id), userRate: score });
         res.status(200).json({
             code: 200,
             data: response
@@ -127,3 +132,6 @@ const getShowReviews = (req, res, next) => __awaiter(void 0, void 0, void 0, fun
     }
 });
 exports.getShowReviews = getShowReviews;
+function searchshows(arg0, arg1) {
+    throw new Error("Function not implemented.");
+}

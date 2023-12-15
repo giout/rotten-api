@@ -43,7 +43,7 @@ const insertMedia = (entry) => __awaiter(void 0, void 0, void 0, function* () {
         entry.date,
         entry.posterUrl,
         entry.trailerUrl,
-        entry.apiId
+        entry.id
     ]);
     return {
         id: media.rows[0].media_id,

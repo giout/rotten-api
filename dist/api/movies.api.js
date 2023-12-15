@@ -30,7 +30,7 @@ const discoverMovies = (entry, page) => __awaiter(void 0, void 0, void 0, functi
     if (entry.genre)
         params.with_genres = entry.genre;
     if (entry.year)
-        params.year = entry.year;
+        params.primary_release_year = entry.year;
     const url = api + '/discover/movie';
     const request = yield (0, axios_util_1.getRequest)(url, headers, params);
     return request;

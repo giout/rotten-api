@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.selectRatingsByUser = exports.selectCriticScore = exports.selectPublicScore = exports.selectCriticRatings = exports.selectPublicRatings = exports.deleteRating = exports.selectRatingByPk = exports.insertRating = void 0;
+exports.selectRatingsByUser = exports.selectRatingsCriticAvgAndCount = exports.selectRatingsPublicAvgAndCount = exports.deleteRating = exports.selectRatingByPk = exports.insertRating = void 0;
 const database_1 = __importDefault(require("../config/database"));
 const ratings_query_1 = __importDefault(require("../queries/ratings.query"));
 const insertRating = (entry) => __awaiter(void 0, void 0, void 0, function* () {
@@ -43,34 +43,24 @@ const deleteRating = (entry) => __awaiter(void 0, void 0, void 0, function* () {
     yield database_1.default.query(sentence, [entry.userId, entry.mediaId]);
 });
 exports.deleteRating = deleteRating;
-const selectPublicRatings = (mediaId) => __awaiter(void 0, void 0, void 0, function* () {
-    const sentence = ratings_query_1.default.select.count.publicRatings;
+const selectRatingsPublicAvgAndCount = (mediaId) => __awaiter(void 0, void 0, void 0, function* () {
+    const sentence = ratings_query_1.default.select.avgAndCount.public;
     const ratings = yield database_1.default.query(sentence, [mediaId]);
-    return parseInt(ratings.rows[0].count);
+    return {
+        score: parseFloat(ratings.rows[0].avg) || 0,
+        ratings: parseInt(ratings.rows[0].count)
+    };
 });
-exports.selectPublicRatings = selectPublicRatings;
-const selectCriticRatings = (mediaId) => __awaiter(void 0, void 0, void 0, function* () {
-    const sentence = ratings_query_1.default.select.count.criticRatings;
+exports.selectRatingsPublicAvgAndCount = selectRatingsPublicAvgAndCount;
+const selectRatingsCriticAvgAndCount = (mediaId) => __awaiter(void 0, void 0, void 0, function* () {
+    const sentence = ratings_query_1.default.select.avgAndCount.critic;
     const ratings = yield database_1.default.query(sentence, [mediaId]);
-    return parseInt(ratings.rows[0].count);
+    return {
+        score: parseFloat(ratings.rows[0].avg) || 0,
+        ratings: parseInt(ratings.rows[0].count)
+    };
 });
-exports.selectCriticRatings = selectCriticRatings;
-const selectPublicScore = (mediaId) => __awaiter(void 0, void 0, void 0, function* () {
-    const sentence = ratings_query_1.default.select.average.publicScore;
-    const ratings = yield database_1.default.query(sentence, [mediaId]);
-    if (!ratings.rows[0].avg)
-        return 0;
-    return parseFloat(ratings.rows[0].avg);
-});
-exports.selectPublicScore = selectPublicScore;
-const selectCriticScore = (mediaId) => __awaiter(void 0, void 0, void 0, function* () {
-    const sentence = ratings_query_1.default.select.average.criticScore;
-    const ratings = yield database_1.default.query(sentence, [mediaId]);
-    if (!ratings.rows[0].avg)
-        return 0;
-    return parseFloat(ratings.rows[0].avg);
-});
-exports.selectCriticScore = selectCriticScore;
+exports.selectRatingsCriticAvgAndCount = selectRatingsCriticAvgAndCount;
 const selectRatingsByUser = (userId) => __awaiter(void 0, void 0, void 0, function* () {
     const sentence = ratings_query_1.default.select.count.userRatings;
     const ratings = yield database_1.default.query(sentence, [userId]);
