@@ -1,13 +1,49 @@
-<h1>Rotten tomatoes clone REST API</h1>
+# Rotten tomatoes clone REST API
+API that serves data to a rotten tomatoes clone app. This service collects data from <a href="https://www.themoviedb.org/">The Movie Database</a>.
 
-<p>https://rotten-api.onrender.com</p>
+- [API Documentation](#api-documentation)
+- [Tech stack](#tech-stack)
+- [Required installations](#required-installations)
+- [Commands](#commands)
+- [Environment variables](#environment-variables)
 
-<p>This service uses data from <a href="https://www.themoviedb.org/">The Movie Database</a>.</p>
+## API Documentation
+https://documenter.getpostman.com/view/27562812/2s9YkgEkmM
 
-<h2>Documentation</h2>
-<p>https://documenter.getpostman.com/view/27562812/2s9YkgEkmM</p>
+## Tech stack
+* [Node.js](https://nodejs.org)
+* [Javascript](https://developer.mozilla.org/es/docs/Web/JavaScript)
+* [Typescript](https://www.typescriptlang.org)
+* [Express](https://expressjs.com)
+* [PostgreSQL](https://www.postgresql.org/)
 
-<h2>Environment variables</h2>
+## Required installations
+* [Node.js](https://nodejs.org/) - This project was developed using Node v20.10.0.
+* [PostgreSQL](https://www.postgresql.org/) - This project was developed using Postgres 12
+
+## Commands 
+
+### Install dependencies
+It is mandatory to install dependencies before executing any other step.
+```sh
+$ npm install
+```
+
+### Generate Js code
+Transpile .ts files into .js files, store them at */dist* folder and run these .js files.
+```sh
+$ npm run build
+```
+
+### Deploy in production mode
+Deploy
+```sh
+$ npm run start
+```
+(This command will automatically transpile .ts files into .js files, store them at */dist* folder and run these .js files).
+
+## Environment variables
+Environment variables should be added to a .env in the root directory, following the structure of .env.example
 <table>
 <tr>
 <th>Variable</th>
