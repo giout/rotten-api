@@ -2,10 +2,11 @@ import { Request, Response, NextFunction } from "express"
 import { AuthRequest } from "../types/auth.type"
 import jwt, { JwtPayload } from 'jsonwebtoken'
 import { CustomError } from "../utils/error.util"
+import { selectUserByPk } from "../services/users.service"
 
 const signature = <string> process.env.TOKEN_SIGNATURE 
 
-export const authentication = (req: Request, res: Response, next: NextFunction) => {
+export const authentication = async (req: Request, res: Response, next: NextFunction) => {
     const auth = req.headers['authorization'] || ''
 
     // authentication with Bearer token
@@ -25,7 +26,11 @@ export const authentication = (req: Request, res: Response, next: NextFunction) 
             // add property to request object that contains token payload
             (req as AuthRequest).user = <JwtPayload> decoded 
         })
-        
+        const user = await selectUserByPk((req as AuthRequest).user.id)
+        if (!user){
+            throw new CustomError('Invalid session', 401)
+        }
+
         return next()
     } catch (error) {
         next(error)
