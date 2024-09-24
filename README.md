@@ -4,6 +4,7 @@ API that serves data to a rotten tomatoes clone app. This service collects data 
 - [API Documentation](#api-documentation)
 - [Tech stack](#tech-stack)
 - [Required installations](#required-installations)
+- [Project initialization](#project-initialization)
 - [Commands](#commands)
 - [Environment variables](#environment-variables)
 
@@ -20,6 +21,12 @@ https://documenter.getpostman.com/view/27562812/2s9YkgEkmM
 ## Required installations
 * [Node.js](https://nodejs.org/) - This project was developed using Node v20.10.0.
 * [PostgreSQL](https://www.postgresql.org/) - This project was developed using Postgres 12
+
+## Project initialization
+1. Install dependencies by executing the dependencies command.
+2. Create a postgres database.
+3. Execute db.sql in the database to create the data structure.
+4. Run the deploy or develop mode command to start the server.
 
 ## Commands 
 
