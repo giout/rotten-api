@@ -25,7 +25,7 @@ https://documenter.getpostman.com/view/27562812/2s9YkgEkmM
 ## Project initialization
 1. Install dependencies by executing the dependencies command.
 2. Create a postgres database.
-3. Execute db.sql in the database to create the data structure.
+3. Execute db.sql in your Postgres database to create the data structure.
 4. Run the deploy or develop mode command to start the server.
 
 ## Commands 
