@@ -46,6 +46,7 @@ export const getAllMovies = async (req: Request, res: Response, next: NextFuncti
         
         res.status(200).json({
             code: 200,
+            page: Number(page),
             data: response
         })
 

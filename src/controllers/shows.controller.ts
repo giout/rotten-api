@@ -14,7 +14,7 @@ import { AuthRequest } from "../types/auth.type"
 export const getAllShows = async (req: Request, res: Response, next: NextFunction) => {
     try {
         let request
-        let { search, page, genre, order, year } = req.query
+        let { search, page, genre, order  } = req.query
         if (!page) page = '1'
 
         // find shows in external api
@@ -46,6 +46,7 @@ export const getAllShows = async (req: Request, res: Response, next: NextFunctio
         
         res.status(200).json({
             code: 200,
+            page: Number(page),
             data: response
         })
 
