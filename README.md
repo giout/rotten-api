@@ -2,6 +2,7 @@
 API that serves data to a rotten tomatoes clone app. This service collects data from <a href="https://www.themoviedb.org/">The Movie Database</a>.
 
 - [API Documentation](#api-documentation)
+- [Demo](#demo)
 - [Tech stack](#tech-stack)
 - [Required installations](#required-installations)
 - [Project initialization](#project-initialization)
@@ -10,6 +11,9 @@ API that serves data to a rotten tomatoes clone app. This service collects data 
 
 ## API Documentation
 https://documenter.getpostman.com/view/27562812/2s9YkgEkmM
+
+## Demo
+https://youtu.be/StodOAlaTes
 
 ## Tech stack
 * [Node.js](https://nodejs.org)
