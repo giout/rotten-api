@@ -1,10 +1,12 @@
 import { Request, Response, NextFunction } from "express"
 import { insertComment, deleteCommentByPk, selectCommentByPk } from "../services/comments.service"
 import { commentExists, dataMissing, reviewExists, userExists, verifyAuth } from "../utils/validation.util"
+import { AuthRequest } from "../types/auth.type"
 
 export const postComment = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const { userId, reviewId, content } = req.body
+        const { reviewId, content } = req.body
+        const userId = (req as AuthRequest).user.id
         if (!(userId && reviewId && content))
             dataMissing()
 
@@ -12,7 +14,7 @@ export const postComment = async (req: Request, res: Response, next: NextFunctio
         await reviewExists(reviewId)
         verifyAuth(req, userId)
         
-        const comment = await insertComment(req.body)
+        const comment = await insertComment({ ...req.body, userId })
         res.status(201).json({
             code: 201,
             data: comment

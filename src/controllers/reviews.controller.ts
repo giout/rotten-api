@@ -2,17 +2,18 @@ import { Request, Response, NextFunction } from "express"
 import { createReview, deleteReviewByPk, selectReviewByPk } from "../services/reviews.service"
 import { selectCommentsByReviewId } from "../services/comments.service"
 import { dataMissing, reviewExists, verifyAuth } from "../utils/validation.util"
+import { AuthRequest } from "../types/auth.type"
 
 export const postReview = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const { userId, mediaId, content } = req.body
-
+        const { mediaId, content } = req.body
+        const userId = (req as AuthRequest).user.id
         if (!(userId && mediaId && content))
             dataMissing()
         
         verifyAuth(req, userId)
 
-        const review = await createReview(req.body)
+        const review = await createReview({ ...req.body, userId })
         res.status(201).json({
             code: 201, 
             data: review
